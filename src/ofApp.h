@@ -4,11 +4,14 @@
 #include "FaceTracker.h"
 #include "ofxVideoRecorder.h"
 #include "ofxImGui.h"
+#include "ofxCv.h"
+#include "ofxOpenCv.h"
 // local files
+#include "Clahe.h"
 #include "ofGrid.h"
 #include "ofVidRec.h" // encapsulate ofxVideoRecorder.h for convenience
 
-//#define _USE_LIVE_VIDEO
+#define _USE_LIVE_VIDEO
 
 class ofApp : public ofBaseApp{
     
@@ -38,9 +41,12 @@ public:
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
-    ofImage colorImg;
+    ofImage colorImg, filteredImg;
     float downSize;
-    
+    // filter
+    int claheClipLimit;
+    Clahe clahe;
+    bool isFiltered, isClaheColored;
     // ft
     ofxDLib::FaceTracker ft;
     ofPixels getFacePart(ofPixels pixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare);

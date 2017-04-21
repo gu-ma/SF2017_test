@@ -48,8 +48,13 @@ void ofApp::update(){
             colorImg.setFromPixels(movie.getPixels());
         #endif
         colorImg.resize(colorImg.getWidth()/downSize, colorImg.getHeight()/downSize);
-        // ft
-        ft.findFaces(colorImg.getPixels(),false);
+        if (isFiltered) {
+            clahe.filter(colorImg, filteredImg, claheClipLimit, isClaheColored);
+            filteredImg.update();
+            ft.findFaces(filteredImg.getPixels(),false);
+        } else {
+            ft.findFaces(colorImg.getPixels(),false);
+        }
         vector<ofxDLib::Face> faces = ft.getFaces();
         ofPixels vidPixels = colorImg.getPixels();
         // grid
@@ -63,8 +68,8 @@ void ofApp::update(){
                 for (auto & facePolyline : facePolylines) {
                     if (i < faceElementsCount.at(j)) {
                         // WARNING WITH MEMORY
+                        // Add scale for the zoom and offset
                         pis.push_back(*new ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, false), ofGrid::rightEye));
-
 //                            pis.push_back(*new ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, ofMap(i,0,faceElementsCount.at(j),1,1.5)*faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
                     }
                     j++;
@@ -100,7 +105,8 @@ void ofApp::draw(){
     ofPushMatrix();
         ofTranslate(grid.width*grid.resolution, 0);
         ofScale(0.25, 0.25);
-        colorImg.draw(0, 0);
+        if (isFiltered) filteredImg.draw(0, 0);
+        else colorImg.draw(0, 0);
         ft.draw();
     ofPopMatrix();
     //
@@ -148,6 +154,10 @@ void ofApp::keyPressed(int key){
 void ofApp::varSetup(){
     // capture
     downSize = 2;
+    // filter
+    claheClipLimit = 2;
+    isFiltered = true;
+    isClaheColored = true;
     // grid
     showGrid = false;
     gridWidth = 6;
@@ -169,7 +179,9 @@ void ofApp::guiDraw(){
     gui.begin();
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::SliderFloat("Down size input", &downSize, 1, 4);
-    
+        ImGui::SliderInt("claheClipLimit", &claheClipLimit, 0, 6);
+        ImGui::Checkbox("isFiltered", &isFiltered);
+        ImGui::Checkbox("isClaheColored", &isClaheColored);
         if (ImGui::CollapsingHeader("Grid", false)) {
             ImGui::SliderInt("gridWidth", &gridWidth, 1, 12);
             ImGui::SliderInt("gridHeight", &gridHeight, 1, 12);
