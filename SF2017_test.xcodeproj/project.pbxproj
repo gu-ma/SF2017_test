@@ -1183,7 +1183,7 @@
 				<key>isa</key>
 				<string>PBXNativeTarget</string>
 				<key>name</key>
-				<string>SF2017-FaceTracker_Capture_test</string>
+				<string>SF2017_test</string>
 				<key>productName</key>
 				<string>myOFApp</string>
 				<key>productReference</key>
@@ -1200,7 +1200,7 @@
 				<key>isa</key>
 				<string>PBXFileReference</string>
 				<key>path</key>
-				<string>SF2017-FaceTracker_Capture_testDebug.app</string>
+				<string>SF2017_testDebug.app</string>
 				<key>sourceTree</key>
 				<string>BUILT_PRODUCTS_DIR</string>
 			</dict>

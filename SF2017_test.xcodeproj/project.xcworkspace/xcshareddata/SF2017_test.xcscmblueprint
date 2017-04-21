@@ -1,0 +1,44 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "F6471B988312530545D1AC88ADAAE0CFF69FA9DF",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "E636972152EDADA61F5B26C9649C67A68C1579FF" : 9223372036854775807,
+    "4131F34236DEB94090351DE98CD44A123F2873AB" : 9223372036854775807,
+    "55505DE6675E1AEB4CF72AD63A972936EC984D97" : 9223372036854775807,
+    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "7C8F8715-8D38-4C42-850D-C2DB5D956748",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "E636972152EDADA61F5B26C9649C67A68C1579FF" : "..\/..\/addons\/ofxDLib",
+    "4131F34236DEB94090351DE98CD44A123F2873AB" : "..\/..\/addons\/ofxVideoRecorder",
+    "55505DE6675E1AEB4CF72AD63A972936EC984D97" : "..\/..\/addons\/ofxImGui",
+    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : "SF2017_test\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "SF2017_test",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "SF2017_test.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/timscaffidi\/ofxVideoRecorder.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4131F34236DEB94090351DE98CD44A123F2873AB"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jvcleave\/ofxImGui.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "55505DE6675E1AEB4CF72AD63A972936EC984D97"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/antimodular\/ofxDLib.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E636972152EDADA61F5B26C9649C67A68C1579FF"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/gu-ma\/SF2017_test.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F6471B988312530545D1AC88ADAAE0CFF69FA9DF"
+    }
+  ]
+}
