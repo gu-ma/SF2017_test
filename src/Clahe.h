@@ -11,37 +11,37 @@
 
 class Clahe {
 public:
-    cv::Mat grey_img, lab_img, clahe_img, tmp_img;
+    cv::Mat greyImg, labImg, claheImg, tmpImg;
     
     template <class S, class D>
-    void filter(S& src, D& dst, int clip, bool isColor) {
+    void filter(S& src, D& dst, int clipLimit, bool isColor) {
         cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-        clahe->setClipLimit(clip);
+        clahe->setClipLimit(clipLimit);
         if (!isColor) {
-            ofxCv::copyGray(src, grey_img);
-            clahe->apply(grey_img,clahe_img);
+            ofxCv::copyGray(src, greyImg);
+            clahe->apply(greyImg,claheImg);
             // convert to ofImage
-            ofxCv::toOf(clahe_img, dst);
+            ofxCv::toOf(claheImg, dst);
         } else {
-            cv::cvtColor(ofxCv::toCv(src), lab_img, CV_BGR2Lab);
-            // ofxCv::convertColor(camera, lab_img, CV_BGR2Lab);
+            cv::cvtColor(ofxCv::toCv(src), labImg, CV_BGR2Lab);
+            // ofxCv::convertColor(src, labImg, CV_BGR2Lab);
             
             // Extract the L channel
             vector<cv::Mat> lab_planes(3);
-            cv::split(lab_img, lab_planes);  // now we have the L image in lab_planes[0]
+            cv::split(labImg, lab_planes);  // now we have the L image in lab_planes[0]
             
             // apply the CLAHE algorithm to the L channel
-            clahe->apply(lab_planes[0], tmp_img);
+            clahe->apply(lab_planes[0], tmpImg);
             
             // Merge the the color planes back into an Lab img
-            tmp_img.copyTo(lab_planes[0]);
-            cv::merge(lab_planes, lab_img);
+            tmpImg.copyTo(lab_planes[0]);
+            cv::merge(lab_planes, labImg);
             
             // convert back to RGB
-            cv::cvtColor(lab_img, clahe_img, CV_Lab2BGR);
+            cv::cvtColor(labImg, claheImg, CV_Lab2BGR);
             
             // convert to ofImage
-            ofxCv::toOf(clahe_img, dst);
+            ofxCv::toOf(claheImg, dst);
         }
     }
 };

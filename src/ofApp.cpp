@@ -47,6 +47,7 @@ void ofApp::update(){
         #else
             colorImg.setFromPixels(movie.getPixels());
         #endif
+        // resize a different img
         colorImg.resize(colorImg.getWidth()/downSize, colorImg.getHeight()/downSize);
         if (isFiltered) {
             clahe.filter(colorImg, filteredImg, claheClipLimit, isClaheColored);
@@ -70,17 +71,13 @@ void ofApp::update(){
                         // WARNING WITH MEMORY
                         // Add scale for the zoom and offset
                         pis.push_back(*new ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, false), ofGrid::rightEye));
-//                            pis.push_back(*new ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, ofMap(i,0,faceElementsCount.at(j),1,1.5)*faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
                     }
                     j++;
                 }
-//                    ofGrid::PixelsItem pi(getFacePart(vidPixels, ofPolyline::fromRectangle(face.rect), 1, 0, true), ofGrid::leftEye);
-//                    pis.push_back(pi);
             }
             // Capture
             if (i==0) {
                 if (vidPixels.isAllocated()) {
-//                    vidPixels.crop(face.noseTip.getCentroid2D().x-200, face.noseTip.getCentroid2D().y-200, 400, 400);
                     vidRecorder.update(getFacePart(vidPixels, ofPolyline::fromRectangle(face.rect), .5, 0, true));
                 }
             }
@@ -95,7 +92,6 @@ void ofApp::update(){
         }
         grid.updateText(tis);
     }
-    
 }
 
 //--------------------------------------------------------------
@@ -113,9 +109,9 @@ void ofApp::draw(){
     guiDraw();
 }
 
+
 //--------------------------------------------------------------
 ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare){
-//    ofPixels crop;
     ofPoint center = partPolyline.getCentroid2D();
     int w,h;
     if (isSquare) {
@@ -129,18 +125,18 @@ ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float 
         w = partPolyline.getBoundingBox().width * 1/zoom;
         h = partPolyline.getBoundingBox().height * 1/zoom;
     }
-    // check out of bound
+    // check if out of bound
     int x = center.x+offset-w/2;
     int y = center.y+offset-h/2;
     if ( x+w/2 > colorImg.getWidth() ) x = colorImg.getWidth()-w/2;
     else if ( x-w/2 < 0 ) x = w/2;
     if ( y+h/2 > colorImg.getHeight() ) y = colorImg.getHeight()-h/2;
     else if ( y-h/2 < 0 ) y = h/2;
-    
+    //
     facePixels.crop(x, y, w, h);
-//    facePixels.crop(center.x+ofSignedNoise(offset)*offset*10-w/2, center.y+ofSignedNoise(offset)*offset*10-h/2, w, h);
     return facePixels;
 }
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -149,6 +145,7 @@ void ofApp::keyPressed(int key){
     if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate());
     if (key == 's') vidRecorder.stop();
 }
+
 
 //--------------------------------------------------------------
 void ofApp::varSetup(){
@@ -172,6 +169,7 @@ void ofApp::varSetup(){
     faceElementsOffset = 0;
     faceElementsZoom = 1;
 }
+
 
 //--------------------------------------------------------------
 void ofApp::guiDraw(){
@@ -203,10 +201,12 @@ void ofApp::guiDraw(){
     gui.end();
 }
 
+
 //--------------------------------------------------------------
 void ofApp::exit(){
     vidRecorder.close();
 }
+
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
