@@ -197,7 +197,7 @@ void ofApp::guiDraw(){
             ImGui::SliderInt("Nose Count", &faceElementsCount[3], 0, 20);
             ImGui::SliderInt("Mouth Count", &faceElementsCount[4], 0, 20);
             ImGui::SliderFloat("Offset", &faceElementsOffset, 0, 10);
-            ImGui::SliderFloat("Zoom", &faceElementsZoom, 0.5, 6);
+            ImGui::SliderFloat("Zoom", &faceElementsZoom, 0.2, 6);
         }
     gui.end();
 }
