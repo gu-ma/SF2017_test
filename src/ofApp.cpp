@@ -18,8 +18,8 @@ void ofApp::setup(){
     vidRecorder.init("output", "face", ".mov", "mpeg4", "100k");
     // capture
     #ifdef _USE_LIVE_VIDEO
-        cam.setDeviceID(0);
-        cam.setup(1280, 720);
+        cam.setDeviceID(1);
+        cam.setup(1920, 1080);
     #else
         movie.load("vids/test.mov");  // 1280x720
         movie.play();
