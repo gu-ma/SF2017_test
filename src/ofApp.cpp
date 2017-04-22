@@ -47,17 +47,18 @@ void ofApp::update(){
         #else
             colorImg.setFromPixels(movie.getPixels());
         #endif
-        // resize a different img
-        colorImg.resize(colorImg.getWidth()/downSize, colorImg.getHeight()/downSize);
+        // resize
+        resizedImg = colorImg;
+        resizedImg.resize(colorImg.getWidth()/downSize, colorImg.getHeight()/downSize);
+        ofPixels vidPixels = colorImg.getPixels();
         if (isFiltered) {
-            clahe.filter(colorImg, filteredImg, claheClipLimit, isClaheColored);
+            clahe.filter(resizedImg, filteredImg, claheClipLimit, isClaheColored);
             filteredImg.update();
             ft.findFaces(filteredImg.getPixels(),false);
         } else {
-            ft.findFaces(colorImg.getPixels(),false);
+            ft.findFaces(resizedImg.getPixels(),false);
         }
         vector<ofxDLib::Face> faces = ft.getFaces();
-        ofPixels vidPixels = colorImg.getPixels();
         // grid
         vector<ofGrid::PixelsItem> pis;
         vector<ofGrid::TextItem> tis;
@@ -70,12 +71,12 @@ void ofApp::update(){
                     if (i < faceElementsCount.at(j)) {
                         // WARNING WITH MEMORY
                         // Add scale for the zoom and offset
-                        pis.push_back(*new ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, false), ofGrid::rightEye));
+                        pis.push_back(ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, false), ofGrid::rightEye));
                     }
                     j++;
                 }
             }
-            // Capture
+            // video recording
             if (i==0) {
                 if (vidPixels.isAllocated()) {
                     vidRecorder.update(getFacePart(vidPixels, ofPolyline::fromRectangle(face.rect), .5, 0, true));
@@ -102,7 +103,7 @@ void ofApp::draw(){
         ofTranslate(grid.width*grid.resolution, 0);
         ofScale(0.25, 0.25);
         if (isFiltered) filteredImg.draw(0, 0);
-        else colorImg.draw(0, 0);
+        else resizedImg.draw(0, 0);
         ft.draw();
     ofPopMatrix();
     //
@@ -128,12 +129,12 @@ ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float 
     // check if out of bound
     int x = center.x+offset-w/2;
     int y = center.y+offset-h/2;
-    if ( x+w/2 > colorImg.getWidth() ) x = colorImg.getWidth()-w/2;
+    if ( x+w/2 > resizedImg.getWidth() ) x = resizedImg.getWidth()-w/2;
     else if ( x-w/2 < 0 ) x = w/2;
-    if ( y+h/2 > colorImg.getHeight() ) y = colorImg.getHeight()-h/2;
+    if ( y+h/2 > resizedImg.getHeight() ) y = resizedImg.getHeight()-h/2;
     else if ( y-h/2 < 0 ) y = h/2;
     //
-    facePixels.crop(x, y, w, h);
+    facePixels.crop(x*downSize, y*downSize, w*downSize, h*downSize);
     return facePixels;
 }
 
