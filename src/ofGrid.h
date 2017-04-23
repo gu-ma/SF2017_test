@@ -77,15 +77,20 @@ public:
             textDisplay.setLineHeight(10*s);
         }
         
-        void draw(int x, int y, int w, int h) {
+        void draw(int x, int y, int w, int h, ofColor bckgrdColor) {
             if (!textBuffer.empty()) {
                 wrapString(w-3*size*2);
-                ofSetColor(x/3, y/3, h/2);
+                ofSetColor(bckgrdColor);
                 ofDrawRectangle(x, y, w, h);
                 ofSetColor(255);
 //                textDisplay.drawStringAsShapes(textBuffer, x, y);
                 textDisplay.drawString(textBuffer, x+3*size, y+4*size+(6*size));
+//                textDisplay.drawString(textBuffer, x, y);
             }
+        }
+        
+        int getArea() {
+            return (textBuffer.size()*(12*size*8*size));
         }
         
         void wrapString(int width) {
@@ -165,12 +170,13 @@ public:
 //                ofSetColor(255, ofNoise(w, h)*255);
                 pc.cropAndDraw(x, y, w, h);
             }
-//            if (!this->textItems.empty()) {
-//                TextItem ti = this->textItems.at((i)%this->textItems.size());
-//                ti.draw(x, y, w, h);
-//            }
-            i++;
         }
+        if (!this->textItems.empty()) {
+            TextItem ti = this->textItems.at((1)%this->textItems.size());
+            ti.draw(0, 0, sqrt(ti.getArea()), sqrt(ti.getArea()), ofColor(ofMap(i, 0, gridHolders.size(), 0, 255), 0, 0));
+        }
+        i++;
+        
     }
     
     void updatePixels(vector<PixelsItem> pi){
@@ -197,9 +203,6 @@ public:
         this->clearGridHolders();
         int i = 0;
         int x,y,w,h,randomWidth,randomHeight;
-        for (auto & ti : textItems) {
-            
-        }
         while (this->canAddGridHolder()) {
             x = ofRandom(this->width);
             y = ofRandom(this->height);

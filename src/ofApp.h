@@ -41,7 +41,7 @@ public:
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
-    ofImage colorImg, filteredImg, resizedImg;
+    ofImage colorImg, filteredImg, resizedImg, croppedImg;
     float downSize;
     // filter
     int claheClipLimit;

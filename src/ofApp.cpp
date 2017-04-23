@@ -18,8 +18,10 @@ void ofApp::setup(){
     vidRecorder.init("output", "face", ".mov", "mpeg4", "100k");
     // capture
     #ifdef _USE_LIVE_VIDEO
-        cam.setDeviceID(1);
-        cam.setup(1920, 1080);
+//        cam.setDeviceID(1);
+//        cam.setup(1920, 1080);
+        cam.setDeviceID(0);
+        cam.setup(1280, 720);
     #else
         movie.load("vids/test.mov");  // 1280x720
         movie.play();
@@ -47,10 +49,11 @@ void ofApp::update(){
         #else
             colorImg.setFromPixels(movie.getPixels());
         #endif
+        ofPixels vidPixels = colorImg.getPixels();
         // resize
         resizedImg = colorImg;
-        resizedImg.resize(colorImg.getWidth()/downSize, colorImg.getHeight()/downSize);
-        ofPixels vidPixels = colorImg.getPixels();
+        resizedImg.resize(resizedImg.getWidth()/downSize, resizedImg.getHeight()/downSize);
+        // ft
         if (isFiltered) {
             clahe.filter(resizedImg, filteredImg, claheClipLimit, isClaheColored);
             filteredImg.update();
@@ -71,7 +74,7 @@ void ofApp::update(){
                     if (i < faceElementsCount.at(j)) {
                         // WARNING WITH MEMORY
                         // Add scale for the zoom and offset
-                        pis.push_back(ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, false), ofGrid::rightEye));
+                         pis.push_back(ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
                     }
                     j++;
                 }
@@ -85,8 +88,9 @@ void ofApp::update(){
         }
         grid.updatePixels(pis);
         // grid txt
-        string t = "LOREM IPSUM DOLOR SIT AMET, CONSETETUR SADIPSCING ELITR, SED DIAM NONUMY EIRMOD TEMPOR INVIDUNT";
-        for (int i=1; i<4; i++) {
+//        string t = "LOREM IPSUM DOLOR SIT AMET";
+        string t = "I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH ";
+        for (int i=1; i<3; i++) {
             ofGrid::TextItem ti(t, i);
             tis.push_back(ti);
             ti.clear();
@@ -155,13 +159,13 @@ void ofApp::varSetup(){
     // filter
     claheClipLimit = 2;
     isFiltered = true;
-    isClaheColored = true;
+    isClaheColored = false;
     // grid
     showGrid = false;
     gridWidth = 6;
     gridHeight = 6;
     gridRes = 32;
-    gridScale = 2;
+    gridScale = 6;
     gridMinSize = 0;
     gridMaxSize = 4;
     gridIsSquare = true;
@@ -182,10 +186,10 @@ void ofApp::guiDraw(){
         ImGui::Checkbox("isFiltered", &isFiltered);
         ImGui::Checkbox("isClaheColored", &isClaheColored);
         if (ImGui::CollapsingHeader("Grid", false)) {
-            ImGui::SliderInt("gridWidth", &gridWidth, 1, 12);
-            ImGui::SliderInt("gridHeight", &gridHeight, 1, 12);
+            ImGui::SliderInt("gridWidth", &gridWidth, 1, 24);
+            ImGui::SliderInt("gridHeight", &gridHeight, 1, 24);
             ImGui::SliderInt("gridScale", &gridScale, 1, 12);
-//            ImGui::SliderInt("gridMinSize", &gridMinSize, 0, 12);
+            ImGui::InputInt("gridRes", &gridRes, 8);
             ImGui::SliderInt("gridMaxSize", &gridMaxSize, 1, 12);
             ImGui::Checkbox("gridIsSquare", &gridIsSquare);
             if(ImGui::Button("Refresh Grid")) grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, gridIsSquare);
