@@ -18,10 +18,10 @@ void ofApp::setup(){
     vidRecorder.init("output", "face", ".mov", "mpeg4", "100k");
     // capture
     #ifdef _USE_LIVE_VIDEO
-//        cam.setDeviceID(1);
-//        cam.setup(1920, 1080);
         cam.setDeviceID(0);
-        cam.setup(1280, 720);
+        cam.setup(1920, 1080);
+//        cam.setDeviceID(0);
+//        cam.setup(1280, 720);
     #else
         movie.load("vids/test.mov");  // 1280x720
         movie.play();
@@ -88,9 +88,9 @@ void ofApp::update(){
         }
         grid.updatePixels(pis);
         // grid txt
-//        string t = "LOREM IPSUM DOLOR SIT AMET";
+//        string t = "I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH ";
         string t = "I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH ";
-        for (int i=1; i<3; i++) {
+        for (int i=1; i<2; i++) {
             ofGrid::TextItem ti(t, i);
             tis.push_back(ti);
             ti.clear();
@@ -162,10 +162,10 @@ void ofApp::varSetup(){
     isClaheColored = false;
     // grid
     showGrid = false;
-    gridWidth = 6;
-    gridHeight = 6;
-    gridRes = 32;
-    gridScale = 6;
+    gridWidth = 12;
+    gridHeight = 12;
+    gridRes = 16;
+    gridScale = 1;
     gridMinSize = 0;
     gridMaxSize = 4;
     gridIsSquare = true;

@@ -38,11 +38,6 @@ public:
         PixelsItem(ofPixels pix, PixelsType t): pixels(pix), type(t) {
             if (pix.isAllocated()) tex.loadData(pix);
         }
-        //        void init(ofPixels pix, PixelsType t){
-        //            pixels = pix;
-        //            type = t;
-        //            tex.loadData(pix);
-        //        }
 
         void cropAndDraw(int x, int y, int w, int h) {
             if (tex.isAllocated()) {
@@ -69,28 +64,33 @@ public:
     class TextItem {
     public:
         string textBuffer;
-        int size;
+        int scaling, fontSize, lineHeight, padding;
         ofTrueTypeFont textDisplay;
         
-        TextItem(string txt, int s): textBuffer(txt), size(s) {
-            textDisplay.load("fonts/pixelmix.ttf", 6*s, false, false, true, 144);
-            textDisplay.setLineHeight(10*s);
+        TextItem(string txt, int s): textBuffer(txt), scaling(s) {
+            this->lineHeight = 10;
+            this->fontSize = 6;
+            this->padding = 6*s;
+            textDisplay.load("fonts/pixelmix.ttf", this->fontSize*s, false, false, false, 144);
+            textDisplay.setLineHeight(this->lineHeight*s);
         }
         
         void draw(int x, int y, int w, int h, ofColor bckgrdColor) {
             if (!textBuffer.empty()) {
-                wrapString(w-3*size*2);
+                wrapString(w-this->padding*2);
                 ofSetColor(bckgrdColor);
                 ofDrawRectangle(x, y, w, h);
                 ofSetColor(255);
-//                textDisplay.drawStringAsShapes(textBuffer, x, y);
-                textDisplay.drawString(textBuffer, x+3*size, y+4*size+(6*size));
-//                textDisplay.drawString(textBuffer, x, y);
+                textDisplay.drawString(textBuffer, x+this->padding/2, y+this->padding+4*this->scaling);
+//                textDisplay.drawString(textBuffer, x+3*scaling, y+4*scaling+(6*scaling));
             }
         }
         
         int getArea() {
-            return (textBuffer.size()*(12*size*8*size));
+            int c = 1; // buffer to add for the char width
+            int area = textBuffer.size() * (this->textDisplay.getLineHeight()) * (this->textDisplay.getSize()+c);
+            int perimeterPadding = sqrt(area) * 4 * this->padding;
+            return (area + perimeterPadding);
         }
         
         void wrapString(int width) {
@@ -121,7 +121,7 @@ public:
 
         void clear() {
             textBuffer.clear();
-            size = 1;
+            scaling = 1;
         }
         
     };
@@ -170,12 +170,12 @@ public:
 //                ofSetColor(255, ofNoise(w, h)*255);
                 pc.cropAndDraw(x, y, w, h);
             }
+            i++;
         }
         if (!this->textItems.empty()) {
             TextItem ti = this->textItems.at((1)%this->textItems.size());
             ti.draw(0, 0, sqrt(ti.getArea()), sqrt(ti.getArea()), ofColor(ofMap(i, 0, gridHolders.size(), 0, 255), 0, 0));
         }
-        i++;
         
     }
     
@@ -204,6 +204,9 @@ public:
         int i = 0;
         int x,y,w,h,randomWidth,randomHeight;
         while (this->canAddGridHolder()) {
+            // create text grid
+            
+            // create pixel grid
             x = ofRandom(this->width);
             y = ofRandom(this->height);
             randomWidth = ofRandom(this->maxSize)+1;
