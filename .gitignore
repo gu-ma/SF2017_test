@@ -37,3 +37,6 @@
 #folders
 /bin/data/output/
 /bin/data/vids/
+
+#other
+SF2017_test.xcodeproj/project.xcworkspace/xcuserdata/guillaume.xcuserdatad/UserInterfaceState.xcuserstate
