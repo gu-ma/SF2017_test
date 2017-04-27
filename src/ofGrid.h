@@ -12,7 +12,7 @@
 // DONE
 // Crop
 // TO DO
-// make different grid types (gridHolder Struct)
+// make different grid types (GridElement Struct)
 // animation when opening
 // improve the "updatePixels" function
 // improve the generate function (no random)
@@ -69,9 +69,9 @@ public:
         
         TextItem(string txt, int s): textBuffer(txt), scaling(s) {
             this->lineHeight = 10;
-            this->fontSize = 6;
+            this->fontSize = 6*s;
             this->padding = 6*s;
-            textDisplay.load("fonts/pixelmix.ttf", this->fontSize*s, false, false, false, 144);
+            textDisplay.load("fonts/pixelmix.ttf", this->fontSize, false, false, false, 144);
             textDisplay.setLineHeight(this->lineHeight*s);
         }
         
@@ -126,13 +126,13 @@ public:
         
     };
 
-    class GridHolder {
+    class GridElement {
     public:
         ofRectangle rectangle;
         ContentType contentType;
         PixelsType pixelsType;
         int alpha;
-        GridHolder(ofRectangle rect, ContentType ct, PixelsType pt, int a): rectangle(rect), contentType(ct), pixelsType(pt), alpha(a){
+        GridElement(ofRectangle rect, ContentType ct, PixelsType pt, int a): rectangle(rect), contentType(ct), pixelsType(pt), alpha(a){
         }
     };
 
@@ -140,7 +140,7 @@ public:
     bool squareOnly;
     vector<PixelsItem> pixelsItems;
     vector<TextItem> textItems;
-    vector<GridHolder> gridHolders;
+    vector<GridElement> GridElements;
     
     //
     void init(int width, int height, int resolution, int minSize, int maxSize, bool squareOnly) {
@@ -150,31 +150,34 @@ public:
         this->minSize = minSize;
         this->maxSize = maxSize;
         this->squareOnly = squareOnly;
-        this->clearGridHolders();
-        this->generateGridHolders();
+        this->clearGridElements();
+        this->generateGridElements();
         this->clearPixels();
     }
     
     //
     void draw() {
         int i = 0;
-        for (auto & gridHolder : gridHolders) {
+        int j = 0;
+        for (auto & ge : GridElements) {
             //
-            int x = gridHolder.rectangle.x*this->resolution;
-            int y = gridHolder.rectangle.y*this->resolution;
-            int w = gridHolder.rectangle.getWidth()*this->resolution;
-            int h = gridHolder.rectangle.getHeight()*this->resolution;
+            int x = ge.rectangle.x*this->resolution;
+            int y = ge.rectangle.y*this->resolution;
+            int w = ge.rectangle.getWidth()*this->resolution;
+            int h = ge.rectangle.getHeight()*this->resolution;
             //
-            if (!this->pixelsItems.empty()) {
-                PixelsItem pc = this->pixelsItems.at((i)%this->pixelsItems.size());
-//                ofSetColor(255, ofNoise(w, h)*255);
+            if (ge.contentType == pixels && !this->pixelsItems.empty()) {
+                PixelsItem pc = this->pixelsItems.at((j)%this->pixelsItems.size());
                 pc.cropAndDraw(x, y, w, h);
+                j ++;
             }
-            i++;
-        }
-        if (!this->textItems.empty()) {
-            TextItem ti = this->textItems.at((1)%this->textItems.size());
-            ti.draw(0, 0, sqrt(ti.getArea()), sqrt(ti.getArea()), ofColor(ofMap(i, 0, gridHolders.size(), 0, 255), 0, 0));
+            //
+//            if (ge.contentType == text && !this->textItems.empty()) {
+//                TextItem ti = this->textItems.at((i)%this->textItems.size());
+////                ti.draw(x, y, w, h, ofColor(ofMap(i, 0, this->textItems.size(), 0, 255), 0, 0) );
+//                ti.draw(x, y, w, h, ofColor(255, 0, 0) );
+//                i ++;
+//            }
         }
         
     }
@@ -195,64 +198,75 @@ public:
         this->textItems.clear();
     }
     
-    void clearGridHolders() {
-        this->gridHolders.clear();
+    void clearGridElements() {
+        this->GridElements.clear();
     }
     
-    void generateGridHolders() {
-        this->clearGridHolders();
+    void generateGridElements() {
+        this->clearGridElements();
         int i = 0;
-        int x,y,w,h,randomWidth,randomHeight;
-        while (this->canAddGridHolder()) {
-            // create text grid
-            
-            // create pixel grid
+        int x,y,w,h,rw,rh;
+//        // create text grid
+//        while (!this->textItems.empty() && i<textItems.size()) {
+//            x = ofRandom(this->width);
+//            y = ofRandom(this->height);
+//            w = sqrt(textItems.at(i).getArea())/this->resolution;
+//            h = w;
+////            if (rw <= (this->width-x) && rw <= (this->height-y)) {
+////                w = rw;
+////                h = rw;
+////            } else {
+////                w = (this->width-x > this->height-y) ? this->height-y : this->width-x;
+////                h = w;
+////            }
+//            if (addGridElement(i, text, leftEye, x, y, w, h)) i++;
+//        }
+        // create pixel grid
+        while (this->canAddGridElement()) {
             x = ofRandom(this->width);
             y = ofRandom(this->height);
-            randomWidth = ofRandom(this->maxSize)+1;
+            rw = ofRandom(this->maxSize)+1;
             if (squareOnly) {
-                if (randomWidth <= (this->width-x) && randomWidth <= (this->height-y)) {
-                    w = randomWidth;
-                    h = randomWidth;
+                if (rw <= (this->width-x) && rw <= (this->height-y)) {
+                    w = rw;
+                    h = rw;
                 } else {
                     w = (this->width-x > this->height-y) ? this->height-y : this->width-x;
                     h = w;
                 }
             } else {
-                w = (randomWidth <= (this->width-x)) ? randomWidth : this->width-x;
-                randomHeight = ofRandom(this->maxSize)+1;
-                h = (randomHeight <= (this->height-y)) ? randomHeight : this->height-y;
+                w = (rw <= (this->width-x)) ? rw : this->width-x;
+                rh = ofRandom(this->maxSize)+1;
+                h = (rh <= (this->height-y)) ? rh : this->height-y;
             }
-            if (addGridHolder(i, pixels, leftEye, x, y, w, h)) {
-                i++;
-            }
+            if (addGridElement(i, pixels, leftEye, x, y, w, h)) i++;
         }
     }
     
     //
-    bool addGridHolder(int index, ContentType ct, PixelsType pt, int x, int y, int w, int h) {
+    bool addGridElement(int index, ContentType ct, PixelsType pt, int x, int y, int w, int h) {
         bool intersects = false;
         ofRectangle rect = ofRectangle(x,y,w,h);
-        for (auto & gridHolder : gridHolders) {
-            if (rect.intersects(gridHolder.rectangle)) intersects = true;
+        for (auto & GridElement : GridElements) {
+            if (rect.intersects(GridElement.rectangle)) intersects = true;
         }
         if (!intersects) {
-            GridHolder gh(rect,ct,pt,100);
-            gridHolders.push_back(gh);
+            GridElement gh(rect,ct,pt,100);
+            GridElements.push_back(gh);
             return true;
         } else {
             return false;
         }
     }
 
-    void drawGridHolders() {
+    void drawGridElements() {
         int i = 0;
-        for (auto & gridHolder : gridHolders) {
+        for (auto & GridElement : GridElements) {
             ofSetColor(ofColor(i*2));
-            int x = gridHolder.rectangle.x*this->resolution;
-            int y = gridHolder.rectangle.y*this->resolution;
-            int w = gridHolder.rectangle.getWidth()*this->resolution;
-            int h = gridHolder.rectangle.getHeight()*this->resolution;
+            int x = GridElement.rectangle.x*this->resolution;
+            int y = GridElement.rectangle.y*this->resolution;
+            int w = GridElement.rectangle.getWidth()*this->resolution;
+            int h = GridElement.rectangle.getHeight()*this->resolution;
             ofDrawRectangle(x,y,w,h);
             ofSetColor(ofColor(255));
             ofDrawBitmapString(i, x+5, y+15);
@@ -260,10 +274,10 @@ public:
         }
     }
     
-    bool canAddGridHolder() {
+    bool canAddGridElement() {
         int area = 0;
-        for (auto & gridHolder : gridHolders) {
-            area += gridHolder.rectangle.getArea();
+        for (auto & GridElement : GridElements) {
+            area += GridElement.rectangle.getArea();
         }
         int gridArea = this->width*this->height;
         bool b = (area<gridArea) ? true : false;
@@ -273,98 +287,6 @@ public:
     
     
 private:
-    
-//private:
-//
-//    vector<vector<int>> matrix;
-//
-//    void initMatrix(){
-//        for (int y = 0; y < this->height; y++) {
-//            vector<int> row; // Create an empty row
-//            for (int x = 0; x < this->width; x++) {
-//                row.push_back(y*x); // Add an element (column) to the row
-//            }
-//            this->matrix.push_back(row); // Add the row to the main vector
-//        }
-//    }
-//    
-//    void clearMatrix(){
-//        for (int y = 0; y < this->height; y++) {
-//            for (int x = 0; x < this->width; x++) {
-//                this->matrix[y][x] = 0;
-//            }
-//        }
-//    }
-//    
-//    void printMatrix(){
-//        cout << "----------" << endl;
-//        for (int y = 0; y < this->height; y++) {
-//            for (int x = 0; x < this->width; x++) {
-//                cout << ofToString(this->matrix[y][x]) + " ";
-//            }
-//            cout << endl;
-//        }
-//    }
-//    
-//    bool isMatrixFull(){
-//        bool isFull = true;
-//        for (int y = 0; y < this->height; y++) {
-//            for (int x = 0; x < this->width; x++) {
-//                if (this->matrix[y][x]==0) isFull = false;
-//            }
-//        }
-//        return isFull;
-//    }
-//    
-//    void createMatrix() {
-//        int i = 1;
-//        cout << this->isMatrixFull() << endl;
-//        
-//        int x,y,w,h,randomWidth,randomHeight;
-//        while (!this->isMatrixFull()) {
-//            x = ofRandom(this->width);
-//            y = ofRandom(this->height);
-//            randomWidth = ofRandom(this->maxSize)+1;
-//            if (squareOnly) {
-//                if (randomWidth <= (this->width-x) && randomWidth <= (this->height-y)) {
-//                    w = randomWidth;
-//                    h = randomWidth;
-//                } else {
-//                    w = (this->width-x > this->height-y) ? this->height-y : this->width-x;
-//                    h = w;
-//                }
-//            } else {
-//                w = (randomWidth <= (this->width-x)) ? randomWidth : this->width-x;
-//                randomHeight = ofRandom(this->maxSize);
-//                h = (randomHeight <= (this->height-y)) ? randomHeight : this->height-y;
-//            }
-//            if (addMatrixElement(i,x,y,w,h)) {
-//                cout << "w:" + ofToString(w) + " i:" + ofToString(i) + " x:" + ofToString(x) << endl;
-////                this->printMatrix();
-//                i++;
-//            }
-//
-//        }
-//    }
-//    
-//    bool addMatrixElement(int index, int x, int y, int w, int h) {
-//        bool isEmpty = true;
-//        for (int i=y; i<y+h; i++) {
-//            for (int j=x; j<x+w; j++) {
-//                if (this->matrix[i][j]!=0) isEmpty = false;
-//            }
-//        }
-//        if (isEmpty) {
-//            for (int i=y; i<y+h; i++) {
-//                for (int j=x; j<x+w; j++) {
-//                    this->matrix[i][j]=index;
-//                }
-//            }
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
     
 };
 

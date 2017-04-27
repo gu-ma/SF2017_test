@@ -49,7 +49,8 @@ void ofApp::update(){
         #else
             colorImg.setFromPixels(movie.getPixels());
         #endif
-        ofPixels vidPixels = colorImg.getPixels();
+        colorImg.mirror(false, true);
+        colorImg.crop( (colorImg.getWidth()-colorImg.getHeight())/2, 0, colorImg.getHeight(), colorImg.getHeight() );
         // resize
         resizedImg = colorImg;
         resizedImg.resize(resizedImg.getWidth()/downSize, resizedImg.getHeight()/downSize);
@@ -57,11 +58,14 @@ void ofApp::update(){
         if (isFiltered) {
             clahe.filter(resizedImg, filteredImg, claheClipLimit, isClaheColored);
             filteredImg.update();
+            clahe.filter(colorImg, colorImg, claheClipLimit, isClaheColored);
+            colorImg.update();
             ft.findFaces(filteredImg.getPixels(),false);
         } else {
             ft.findFaces(resizedImg.getPixels(),false);
         }
         vector<ofxDLib::Face> faces = ft.getFaces();
+        ofPixels vidPixels = colorImg.getPixels();
         // grid
         vector<ofGrid::PixelsItem> pis;
         vector<ofGrid::TextItem> tis;
@@ -88,10 +92,9 @@ void ofApp::update(){
         }
         grid.updatePixels(pis);
         // grid txt
-//        string t = "I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH ";
-        string t = "I'M WATCHING THIS WORDS, I'M THINKING THEY STRETCH ";
-        for (int i=1; i<2; i++) {
-            ofGrid::TextItem ti(t, i);
+        vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
+        for (int i=0; i<3; i++) {
+            ofGrid::TextItem ti(txt.at(i), i+1);
             tis.push_back(ti);
             ti.clear();
         }
@@ -101,7 +104,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    if (showGrid) grid.drawGridHolders();
+    if (showGrid) grid.drawGridElements();
     else grid.draw();
     ofPushMatrix();
         ofTranslate(grid.width*grid.resolution, 0);
@@ -145,7 +148,7 @@ ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float 
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    if (key == 'h') grid.generateGridHolders();
+    if (key == 'h') grid.generateGridElements();
     if (key == 'g') showGrid = !showGrid;
     if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate());
     if (key == 's') vidRecorder.stop();
