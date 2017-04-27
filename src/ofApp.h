@@ -41,25 +41,30 @@ public:
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
-    ofImage colorImg, filteredImg, resizedImg, croppedImg;
+    ofImage inputImg, inputImgFiltered, scaledImg, scaledImgFiltered;
+    ofPixels inputPixels;
     float downSize;
     // filter
     int claheClipLimit;
     Clahe clahe;
-    bool isFiltered, isClaheColored;
+    bool inputIsFiltered, inputIsClaheColored, outputIsFiltered;
     // ft
     ofxDLib::FaceTracker ft;
     ofPixels getFacePart(ofPixels pixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare);
+    float smoothingRate;
+    bool enableTracking, isFocused;
+    int focusedFaceLabel;
     // Always the same order: face, leftEye, rightEye, mouth, nose
     vector<int> faceElementsCount;
     float faceElementsOffset, faceElementsZoom;
     // grid
-    bool showGrid;
+    bool showGrid, showGridElements;
     int gridWidth, gridHeight, gridRes, gridScale, gridMinSize, gridMaxSize;
     bool gridIsSquare;
     ofGrid grid;
     // video recording
     ofVidRec vidRecorder;
+    bool isRecording;
     // GUI
     ofxImGui::Gui gui;
     void guiDraw();

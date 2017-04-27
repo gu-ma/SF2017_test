@@ -4,21 +4,22 @@
 void ofApp::setup(){
     // general
     // ofSetBackgroundAuto(false);
-    ofSetBackgroundColor(0);
     varSetup();
+    ofSetBackgroundColor(0);
+    ofSetWindowPosition(500,500);
     // GUI
     gui.setup();
     // ft
     ft.setup("../../../../models/shape_predictor_68_face_landmarks.dat");
     ft.setDrawStyle(ofxDLib::lines);
-    ft.setSmoothingRate(1);
+    ft.setSmoothingRate(smoothingRate);
     // grid
     grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, true);
     // video recording
     vidRecorder.init("output", "face", ".mov", "mpeg4", "100k");
     // capture
     #ifdef _USE_LIVE_VIDEO
-        cam.setDeviceID(0);
+        cam.setDeviceID(1);
         cam.setup(1920, 1080);
 //        cam.setDeviceID(0);
 //        cam.setup(1280, 720);
@@ -45,32 +46,34 @@ void ofApp::update(){
     if(newFrame){
         // capture
         #ifdef _USE_LIVE_VIDEO
-            colorImg.setFromPixels(cam.getPixels());
+            inputImg.setFromPixels(cam.getPixels());
         #else
-            colorImg.setFromPixels(movie.getPixels());
+            inputImg.setFromPixels(movie.getPixels());
         #endif
-        colorImg.mirror(false, true);
-        colorImg.crop( (colorImg.getWidth()-colorImg.getHeight())/2, 0, colorImg.getHeight(), colorImg.getHeight() );
+        inputImg.mirror(false, true);
+        inputImg.crop( (inputImg.getWidth()-inputImg.getHeight())/2, 0, inputImg.getHeight(), inputImg.getHeight() );
         // resize
-        resizedImg = colorImg;
-        resizedImg.resize(resizedImg.getWidth()/downSize, resizedImg.getHeight()/downSize);
-        // ft
-        if (isFiltered) {
-            clahe.filter(resizedImg, filteredImg, claheClipLimit, isClaheColored);
-            filteredImg.update();
-            clahe.filter(colorImg, colorImg, claheClipLimit, isClaheColored);
-            colorImg.update();
-            ft.findFaces(filteredImg.getPixels(),false);
-        } else {
-            ft.findFaces(resizedImg.getPixels(),false);
+        scaledImg = inputImg;
+        scaledImg.resize(scaledImg.getWidth()/downSize, scaledImg.getHeight()/downSize);
+        // filters
+        if (inputIsFiltered) {
+            clahe.filter(scaledImg, scaledImg, claheClipLimit, inputIsClaheColored);
+            scaledImg.update();
         }
+        if (outputIsFiltered) {
+            clahe.filter(inputImg, inputImg, claheClipLimit, inputIsClaheColored);
+            inputImg.update();
+        }
+        inputPixels = inputImg.getPixels();
+        //
+        ft.findFaces(scaledImg.getPixels(),false);
         vector<ofxDLib::Face> faces = ft.getFaces();
-        ofPixels vidPixels = colorImg.getPixels();
         // grid
         vector<ofGrid::PixelsItem> pis;
         vector<ofGrid::TextItem> tis;
         int i = 0;
         for (auto & face : faces) {
+            // grab face elements
             for (int i=0; i<20; i++) {
                 vector<ofPolyline> facePolylines {ofPolyline::fromRectangle(face.rect), face.leftEye, face.rightEye, face.noseTip, face.outerMouth};
                 int j = 0;
@@ -78,19 +81,26 @@ void ofApp::update(){
                     if (i < faceElementsCount.at(j)) {
                         // WARNING WITH MEMORY
                         // Add scale for the zoom and offset
-                         pis.push_back(ofGrid::PixelsItem(getFacePart(vidPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
+                         pis.push_back(ofGrid::PixelsItem(getFacePart(inputPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
                     }
                     j++;
                 }
             }
-            // video recording
-            if (i==0) {
-                if (vidPixels.isAllocated()) {
-                    vidRecorder.update(getFacePart(vidPixels, ofPolyline::fromRectangle(face.rect), .5, 0, true));
+            // focus and record 1 face
+            if (face.age > 30 && !isFocused) {
+                focusedFaceLabel = face.label;
+                isFocused = true;
+            }
+            if (isFocused && focusedFaceLabel == face.label ){
+                vidRecorder.update(getFacePart(inputPixels, face.noseTip, 1, 0, true));
+                if (!isRecording) {
+                    vidRecorder.start(256, 256, (int)ofGetFrameRate());
+                    isRecording = true;
                 }
             }
         }
         grid.updatePixels(pis);
+        
         // grid txt
         vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
         for (int i=0; i<3; i++) {
@@ -104,15 +114,15 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    if (showGrid) grid.drawGridElements();
-    else grid.draw();
+    if (inputIsFiltered) scaledImg.draw(0, 0, 192, 192);
+    else scaledImg.draw(0, 0, 192, 192);
     ofPushMatrix();
-        ofTranslate(grid.width*grid.resolution, 0);
-        ofScale(0.25, 0.25);
-        if (isFiltered) filteredImg.draw(0, 0);
-        else resizedImg.draw(0, 0);
+        ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
         ft.draw();
     ofPopMatrix();
+    //
+    if (showGrid) grid.draw();
+    else if (showGridElements) grid.drawGridElements();
     //
     guiDraw();
 }
@@ -122,26 +132,27 @@ void ofApp::draw(){
 ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare){
     ofPoint center = partPolyline.getCentroid2D();
     int w,h;
+    // define width and height
     if (isSquare) {
         if ( partPolyline.getBoundingBox().width > partPolyline.getBoundingBox().height ) {
-            w = partPolyline.getBoundingBox().width * 1/zoom;
+            w = partPolyline.getBoundingBox().width;
         } else {
-            w = partPolyline.getBoundingBox().height * 1/zoom;
+            w = partPolyline.getBoundingBox().height;
         }
         h = w;
     } else {
-        w = partPolyline.getBoundingBox().width * 1/zoom;
-        h = partPolyline.getBoundingBox().height * 1/zoom;
+        w = partPolyline.getBoundingBox().width;
+        h = partPolyline.getBoundingBox().height;
     }
     // check if out of bound
     int x = center.x+offset-w/2;
     int y = center.y+offset-h/2;
-    if ( x+w/2 > resizedImg.getWidth() ) x = resizedImg.getWidth()-w/2;
+    if ( x+w/2 > scaledImg.getWidth() ) x = scaledImg.getWidth()-w/2;
     else if ( x-w/2 < 0 ) x = w/2;
-    if ( y+h/2 > resizedImg.getHeight() ) y = resizedImg.getHeight()-h/2;
+    if ( y+h/2 > scaledImg.getHeight() ) y = scaledImg.getHeight()-h/2;
     else if ( y-h/2 < 0 ) y = h/2;
     //
-    facePixels.crop(x*downSize, y*downSize, w*downSize, h*downSize);
+    facePixels.crop(x*downSize, y*downSize, w*downSize*1/zoom, h*downSize*1/zoom);
     return facePixels;
 }
 
@@ -150,6 +161,7 @@ ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float 
 void ofApp::keyPressed(int key){
     if (key == 'h') grid.generateGridElements();
     if (key == 'g') showGrid = !showGrid;
+    if (key == 'f') showGridElements = !showGridElements;
     if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate());
     if (key == 's') vidRecorder.stop();
 }
@@ -158,24 +170,30 @@ void ofApp::keyPressed(int key){
 //--------------------------------------------------------------
 void ofApp::varSetup(){
     // capture
-    downSize = 2;
+    downSize = 1.3;
+    // ft
+    smoothingRate = 1;
+    enableTracking = true;
+    isFocused = false;
     // filter
     claheClipLimit = 2;
-    isFiltered = true;
-    isClaheColored = false;
+    inputIsFiltered = true;
+    inputIsClaheColored = false;
+    outputIsFiltered = true;
     // grid
     showGrid = false;
-    gridWidth = 12;
-    gridHeight = 12;
-    gridRes = 16;
+    showGridElements = false;
+    gridWidth = 6;
+    gridHeight = 6;
+    gridRes = 32;
     gridScale = 1;
     gridMinSize = 0;
-    gridMaxSize = 4;
+    gridMaxSize = 8;
     gridIsSquare = true;
     // ft capture
     faceElementsCount.assign(5, 5);
     faceElementsOffset = 0;
-    faceElementsZoom = 1;
+    faceElementsZoom = .4;
 }
 
 
@@ -186,8 +204,9 @@ void ofApp::guiDraw(){
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::SliderFloat("Down size input", &downSize, 1, 4);
         ImGui::SliderInt("claheClipLimit", &claheClipLimit, 0, 6);
-        ImGui::Checkbox("isFiltered", &isFiltered);
-        ImGui::Checkbox("isClaheColored", &isClaheColored);
+        ImGui::Checkbox("isFiltered", &inputIsFiltered);
+        ImGui::Checkbox("isClaheColored", &inputIsClaheColored);
+        ImGui::SliderFloat("smoothingRate", &smoothingRate, 0, 6);
         if (ImGui::CollapsingHeader("Grid", false)) {
             ImGui::SliderInt("gridWidth", &gridWidth, 1, 24);
             ImGui::SliderInt("gridHeight", &gridHeight, 1, 24);
@@ -195,6 +214,7 @@ void ofApp::guiDraw(){
             ImGui::InputInt("gridRes", &gridRes, 8);
             ImGui::SliderInt("gridMaxSize", &gridMaxSize, 1, 12);
             ImGui::Checkbox("gridIsSquare", &gridIsSquare);
+            ImGui::Checkbox("showGrid", &showGrid);
             if(ImGui::Button("Refresh Grid")) grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, gridIsSquare);
         }
         if (ImGui::CollapsingHeader("Elements", false)) {
