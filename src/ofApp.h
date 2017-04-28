@@ -54,6 +54,7 @@ public:
     // ft
     ofxDLib::FaceTracker ft;
     vector<ofxDLib::Face> faces;
+    ofxDLib::Face focusedFace;
     ofPixels getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, float downScale, float zoom, float offset, bool isSquare);
     float smoothingRate;
     bool enableTracking, isFocused, facesFound;

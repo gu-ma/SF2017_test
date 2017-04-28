@@ -14,7 +14,7 @@ void ofApp::setup(){
     ft.setDrawStyle(ofxDLib::lines);
     ft.setSmoothingRate(smoothingRate);
     // grid
-    grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, true);
+    grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, true);
     // video recording
     vidRecorder.init(".mov", "mpeg4", "100k");
     // capture
@@ -52,7 +52,7 @@ void ofApp::update(){
             inputImg.setFromPixels(movie.getPixels());
         #endif
         inputImg.mirror(false, true);
-        inputImg.crop( (inputImg.getWidth()-inputImg.getHeight())/2, 0, inputImg.getHeight(), inputImg.getHeight() );
+        inputImg.crop((inputImg.getWidth()-inputImg.getHeight())/2, 0, inputImg.getHeight(), inputImg.getHeight());
         // resize
         scaledImg = inputImg;
         scaledImg.resize(scaledImg.getWidth()/downSize, scaledImg.getHeight()/downSize);
@@ -131,18 +131,26 @@ void ofApp::update(){
                 }
                 // if the label of the face is the one focused on
                 if (isFocused && face.label == focusedFaceLabel){
+                    focusedFace = face;
                     // record frames
 //                    ofRectangle r;
 //                    r.setFromCenter(face.noseTip.getCentroid2D(), 100, 100);
                     ofPixels faceCropped = getFacePart(inputPixels, ofPolyline::fromRectangle(face.rect), downSize, .5, 0, true);
                     vidRecorder.update(faceCropped);
-                    
+                    // start the recording
                     if (!isRecording) {
                         vidRecorder.start("output/face", ofToString(face.label),  256, 256, (int)ofGetFrameRate());
                         isRecording = true;
                     }
+                    //
+                    // start the 2nd timer
+                    timer02.reset();
+                    timer02.startTimer();
+                    // zoom in
+                    
+
+                    
                 }
-                // zoom in
             }
             grid.updatePixels(pis);
         }
@@ -162,28 +170,43 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    if (showCapture){
-        if (inputIsFiltered) scaledImgFiltered.draw(0, 0, 192, 192);
-        else scaledImg.draw(0, 0, 192, 192);
-        ofPushMatrix();
-        ofPushStyle();
-            ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
-            ft.draw();
+    // Draw tracked area
+    ofPushMatrix();
+        ofScale(gridScale, gridScale);
+        if (showCapture){
             if (isFocused) {
-                ofNoFill();
-                ofSetLineWidth(2);
-                for (auto & face : faces) {
-                    if (face.label == focusedFaceLabel) {
-                        ofDrawRectangle(face.rect);
+                int focusSize = 400;
+                int x = focusedFace.rect.getCenter().x - focusSize/2;
+                int y = focusedFace.rect.getCenter().y - focusSize/2;
+                x = ofClamp(x, 0, inputPixels.getWidth()*downSize);
+                y = ofClamp(y, 0, inputPixels.getHeight()*downSize);
+                if (inputIsFiltered) inputImgFiltered.drawSubsection(0, 0, 192, 192, x*downSize, y*downSize, focusSize*downSize, focusSize*downSize);
+                else inputImg.drawSubsection(0, 0, 192, 192, x*downSize, y*downSize, focusSize*downSize, focusSize*downSize);
+            } else {
+                if (inputIsFiltered) inputImgFiltered.draw(0, 0, 192, 192);
+                else inputImg.draw(0, 0, 192, 192);
+                // draw facetracker
+                ofPushMatrix();
+                ofPushStyle();
+                ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
+                ft.draw();
+                if (isFocused) {
+                    ofNoFill();
+                    ofSetLineWidth(2);
+                    for (auto & face : faces) {
+                        if (face.label == focusedFaceLabel) {
+                            ofDrawRectangle(face.rect);
+                        }
                     }
                 }
+                ofPopStyle();
+                ofPopMatrix();
             }
-        ofPopStyle();
-        ofPopMatrix();
-    }
-    //
-    if (showGrid) grid.draw();
-    else if (showGridElements) grid.drawGridElements();
+        }
+        // draw grid
+        if (showGrid) grid.draw();
+        else if (showGridElements) grid.drawGridElements();
+    ofPopMatrix();
     //
     guiDraw();
 }
@@ -221,7 +244,7 @@ ofPixels ofApp::getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, floa
 //    //
 //    sourcePixels.crop(x, y, w, h);
 //    return sourcePixels;
-    // convert x and y
+    // def x and y
     int x = center.x+offset;
     int y = center.y+offset;
     // define width and height
@@ -325,7 +348,7 @@ void ofApp::guiDraw(){
             ImGui::SliderInt("gridMaxSize", &gridMaxSize, 1, 12);
             ImGui::Checkbox("gridIsSquare", &gridIsSquare);
             ImGui::Checkbox("showGrid", &showGrid);
-            if(ImGui::Button("Refresh Grid")) grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, gridIsSquare);
+            if(ImGui::Button("Refresh Grid")) grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, gridIsSquare);
         }
         if (ImGui::CollapsingHeader("Elements", false)) {
             ImGui::SliderInt("face Count", &faceElementsCount[0], 0, 20);
