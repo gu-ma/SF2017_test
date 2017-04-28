@@ -19,7 +19,9 @@ public:
         clahe->setClipLimit(clipLimit);
         if (!isColor) {
             ofxCv::copyGray(src, greyImg);
-            clahe->apply(greyImg,claheImg);
+            clahe->apply(greyImg, claheImg);
+            // convert back to RGB
+            cv::cvtColor(claheImg, claheImg, CV_GRAY2RGB);
             // convert to ofImage
             ofxCv::toOf(claheImg, dst);
         } else {

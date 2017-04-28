@@ -2,4 +2,5 @@ ofxCv
 ofxDLibAntimodular
 ofxImGui
 ofxOpenCv
+ofxTimer
 ofxVideoRecorder

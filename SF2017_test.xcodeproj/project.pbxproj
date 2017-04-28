@@ -73,6 +73,70 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>FA89799CEDDEA203A5D0AB2B</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxTimer.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxTimer/src/ofxTimer.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>83998D60BDE502BF9DE8752E</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>E5C5E0A3373A5E7AF0D54C51</string>
+					<string>FA89799CEDDEA203A5D0AB2B</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>src</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>F57AC37CF6942008ABED8A1B</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>83998D60BDE502BF9DE8752E</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>ofxTimer</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>E30C7DC0BD770DC8960DFAAC</key>
+			<dict>
+				<key>fileRef</key>
+				<string>E5C5E0A3373A5E7AF0D54C51</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>E5C5E0A3373A5E7AF0D54C51</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxTimer.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxTimer/src/ofxTimer.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>9A807ED85FFB53D3638FCBE0</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -4777,6 +4841,7 @@
 					<string>6807CA8ABBE24807E7E909C5</string>
 					<string>768C3255AF2F3E1A78DC4DF4</string>
 					<string>A0B90D3B0ADB9C1716816714</string>
+					<string>F57AC37CF6942008ABED8A1B</string>
 					<string>7652B9B7014C8450639DA55C</string>
 				</array>
 				<key>isa</key>
@@ -4979,6 +5044,7 @@
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
+						<string>../../../addons/ofxTimer/src</string>
 						<string>../../../addons/ofxVideoRecorder/src</string>
 					</array>
 					<key>CONFIGURATION_BUILD_DIR</key>
@@ -5085,6 +5151,7 @@
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
+						<string>../../../addons/ofxTimer/src</string>
 						<string>../../../addons/ofxVideoRecorder/src</string>
 					</array>
 					<key>CONFIGURATION_BUILD_DIR</key>
@@ -5175,6 +5242,7 @@
 					<string>E212C821D1064B92DD953A42</string>
 					<string>63020F16C7E8DED980111241</string>
 					<string>D3301F6A0B43BB293ED97C1D</string>
+					<string>E30C7DC0BD770DC8960DFAAC</string>
 					<string>D50B3D9655F08D2B232C1C4D</string>
 				</array>
 				<key>isa</key>
@@ -5307,6 +5375,7 @@
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
+						<string>../../../addons/ofxTimer/src</string>
 						<string>../../../addons/ofxVideoRecorder/src</string>
 					</array>
 					<key>COMBINE_HIDPI_IMAGES</key>
@@ -5403,6 +5472,7 @@
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
+						<string>../../../addons/ofxTimer/src</string>
 						<string>../../../addons/ofxVideoRecorder/src</string>
 					</array>
 					<key>COMBINE_HIDPI_IMAGES</key>

@@ -20,9 +20,7 @@ public:
     bool isRecording;
 
     //--------------------------------------------------------------
-    void init(string fp, string fn, string fe, string co, string br) {
-        this->filePath = fp;
-        this->fileName = fn;
+    void init(string fe, string co, string br) {
         this->fileExt = fe;
         this->codec = co;
         this->bitrate = br;
@@ -58,13 +56,15 @@ public:
     }
 
     //--------------------------------------------------------------
-    void start(int w, int h, int fr){
+    void start(string fp, string fn, int w, int h, int fr){
+        this->filePath = fp;
+        this->fileName = fn;
         this->width = w;
         this->height = h;
         this->frameRate = fr;
         this->isRecording = !this->isRecording;
         if(this->isRecording && !this->recorder.isInitialized()) {
-            this->recorder.setup(this->filePath + "/" + ofGetTimestampString("%Y%m%d-%H%M%S") + this->fileName + this->fileExt, this->width, this->height, this->frameRate, true, false); // no audio
+            this->recorder.setup(this->filePath + "/" + this->fileName + "-" + ofGetTimestampString("%Y%m%d-%H%M%S") + this->fileExt, this->width, this->height, this->frameRate, true, false); // no audio
             this->recorder.start();
         }
     }

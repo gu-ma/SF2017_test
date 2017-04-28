@@ -6,7 +6,7 @@ void ofApp::setup(){
     // ofSetBackgroundAuto(false);
     varSetup();
     ofSetBackgroundColor(0);
-    ofSetWindowPosition(500,500);
+    ofSetWindowPosition(100,100);
     // GUI
     gui.setup();
     // ft
@@ -16,11 +16,12 @@ void ofApp::setup(){
     // grid
     grid.init(gridWidth, gridHeight, gridRes*gridScale, gridMinSize, gridMaxSize, true);
     // video recording
-    vidRecorder.init("output", "face", ".mov", "mpeg4", "100k");
+    vidRecorder.init(".mov", "mpeg4", "100k");
     // capture
     #ifdef _USE_LIVE_VIDEO
-        cam.setDeviceID(1);
+        cam.setDeviceID(0);
         cam.setup(1920, 1080);
+        cam.setPixelFormat(OF_PIXELS_RGB);
 //        cam.setDeviceID(0);
 //        cam.setup(1280, 720);
     #else
@@ -55,71 +56,131 @@ void ofApp::update(){
         // resize
         scaledImg = inputImg;
         scaledImg.resize(scaledImg.getWidth()/downSize, scaledImg.getHeight()/downSize);
+        scaledImg.update();
         // filters
         if (inputIsFiltered) {
-            clahe.filter(scaledImg, scaledImg, claheClipLimit, inputIsClaheColored);
-            scaledImg.update();
+            clahe.filter(scaledImg, scaledImgFiltered, claheClipLimit, inputIsClaheColored);
+            scaledImgFiltered.update();
+            ft.findFaces(scaledImgFiltered.getPixels(), false);
+        } else {
+            ft.findFaces(scaledImg.getPixels(),false);
         }
         if (outputIsFiltered) {
-            clahe.filter(inputImg, inputImg, claheClipLimit, inputIsClaheColored);
-            inputImg.update();
+            clahe.filter(inputImg, inputImgFiltered, claheClipLimit, inputIsClaheColored);
+            inputImgFiltered.update();
+            inputPixels = inputImgFiltered.getPixels();
+        } else {
+            inputPixels = inputImg.getPixels();
         }
-        inputPixels = inputImg.getPixels();
+        
         //
-        ft.findFaces(scaledImg.getPixels(),false);
-        vector<ofxDLib::Face> faces = ft.getFaces();
-        // grid
-        vector<ofGrid::PixelsItem> pis;
-        vector<ofGrid::TextItem> tis;
-        int i = 0;
-        for (auto & face : faces) {
-            // grab face elements
-            for (int i=0; i<20; i++) {
-                vector<ofPolyline> facePolylines {ofPolyline::fromRectangle(face.rect), face.leftEye, face.rightEye, face.noseTip, face.outerMouth};
-                int j = 0;
-                for (auto & facePolyline : facePolylines) {
-                    if (i < faceElementsCount.at(j)) {
-                        // WARNING WITH MEMORY
-                        // Add scale for the zoom and offset
-                         pis.push_back(ofGrid::PixelsItem(getFacePart(inputPixels, facePolyline, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
+        if ( ft.size() == 0 ) {
+            // *********
+            // No faces are detected
+            if (facesFound) {
+                // start iddle timer
+                timer01.reset();
+                timer01.startTimer();
+                // reset variables
+                facesFound = false;
+                isFocused = false;
+                isRecording = false;
+                // stop vid player
+                vidRecorder.stop();
+            }
+            if (timer01.isTimerFinished()) {
+                // *********
+                // Idle mode
+                // No faces are detected for more than XX seconds
+                showCapture = false;
+            }
+        } else {
+            // *********
+            // Faces are detected
+            facesFound = true;
+            showCapture = true;
+            // get faces
+            faces = ft.getFaces();
+            // grid
+            vector<ofGrid::PixelsItem> pis;
+            vector<ofGrid::TextItem> tis;
+            
+            int i = 0;
+            for (auto & face : faces) {
+                
+                // grab face elements
+                for (int i=0; i<20; i++) {
+                    vector<ofPolyline> facePolylines {ofPolyline::fromRectangle(face.rect), face.leftEye, face.rightEye, face.noseTip, face.outerMouth};
+                    int j = 0;
+                    for (auto & facePolyline : facePolylines) {
+                        if (i < faceElementsCount.at(j)) {
+                            // WARNING WITH MEMORY
+                            // Add scale for the zoom and offset
+                            pis.push_back(ofGrid::PixelsItem(getFacePart(inputPixels, facePolyline, downSize, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
+                        }
+                        j++;
                     }
-                    j++;
                 }
-            }
-            // focus and record 1 face
-            if (face.age > 30 && !isFocused) {
-                focusedFaceLabel = face.label;
-                isFocused = true;
-            }
-            if (isFocused && focusedFaceLabel == face.label ){
-                vidRecorder.update(getFacePart(inputPixels, face.noseTip, 1, 0, true));
-                if (!isRecording) {
-                    vidRecorder.start(256, 256, (int)ofGetFrameRate());
-                    isRecording = true;
+
+                // *********
+                // One face is present more than 4 seconds
+                // Save face label and set isFocused to true
+                if (face.age > focusTime && !isFocused) {
+                    focusedFaceLabel = face.label;
+                    isFocused = true;
                 }
+                // if the label of the face is the one focused on
+                if (isFocused && face.label == focusedFaceLabel){
+                    // record frames
+//                    ofRectangle r;
+//                    r.setFromCenter(face.noseTip.getCentroid2D(), 100, 100);
+                    ofPixels faceCropped = getFacePart(inputPixels, ofPolyline::fromRectangle(face.rect), downSize, .5, 0, true);
+                    vidRecorder.update(faceCropped);
+                    
+                    if (!isRecording) {
+                        vidRecorder.start("output/face", ofToString(face.label),  256, 256, (int)ofGetFrameRate());
+                        isRecording = true;
+                    }
+                }
+                // zoom in
             }
+            grid.updatePixels(pis);
         }
-        grid.updatePixels(pis);
+        
         
         // grid txt
-        vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
-        for (int i=0; i<3; i++) {
-            ofGrid::TextItem ti(txt.at(i), i+1);
-            tis.push_back(ti);
-            ti.clear();
-        }
-        grid.updateText(tis);
+//        vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
+//        for (int i=0; i<3; i++) {
+//            ofGrid::TextItem ti(txt.at(i), i+1);
+//            tis.push_back(ti);
+//            ti.clear();
+//        }
+//        grid.updateText(tis);
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    if (inputIsFiltered) scaledImg.draw(0, 0, 192, 192);
-    else scaledImg.draw(0, 0, 192, 192);
-    ofPushMatrix();
-        ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
-        ft.draw();
-    ofPopMatrix();
+    
+    if (showCapture){
+        if (inputIsFiltered) scaledImgFiltered.draw(0, 0, 192, 192);
+        else scaledImg.draw(0, 0, 192, 192);
+        ofPushMatrix();
+        ofPushStyle();
+            ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
+            ft.draw();
+            if (isFocused) {
+                ofNoFill();
+                ofSetLineWidth(2);
+                for (auto & face : faces) {
+                    if (face.label == focusedFaceLabel) {
+                        ofDrawRectangle(face.rect);
+                    }
+                }
+            }
+        ofPopStyle();
+        ofPopMatrix();
+    }
     //
     if (showGrid) grid.draw();
     else if (showGridElements) grid.drawGridElements();
@@ -129,31 +190,71 @@ void ofApp::draw(){
 
 
 //--------------------------------------------------------------
-ofPixels ofApp::getFacePart(ofPixels facePixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare){
+ofPixels ofApp::getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, float downScale, float zoom, float offset, bool isSquare){
     ofPoint center = partPolyline.getCentroid2D();
-    int w,h;
+//    // convert x and y
+//    int x = center.x*downScale+offset;
+//    int y = center.y*downScale+offset;
+//    // define width and height
+//    int w,h;
+//    if (isSquare) {
+//        if ( partPolyline.getBoundingBox().width > partPolyline.getBoundingBox().height ) {
+//            w = partPolyline.getBoundingBox().width*downScale*1/zoom;
+//        } else {
+//            w = partPolyline.getBoundingBox().height*downScale*1/zoom;
+//        }
+//        h = w;
+//    } else {
+//        w = partPolyline.getBoundingBox().width*downScale*1/zoom;
+//        h = partPolyline.getBoundingBox().height*downScale*1/zoom;
+//    }
+//    // check if out of bound
+////     x = ofClamp(x, )
+//    if (x+w/2 > sourcePixels.getWidth()*downScale) x = sourcePixels.getWidth()*downScale-w/2;
+//    else if ( x-w/2 < 0 ) x = w/2;
+//    if (y+h/2 > sourcePixels.getHeight()*downScale) y = sourcePixels.getHeight()*downScale-h/2;
+//    else if ( y-h/2 < 0 ) y = h/2;
+//    else {
+//        x = x-w/2;
+//        y = y-h/2;
+//    }
+//    //
+//    sourcePixels.crop(x, y, w, h);
+//    return sourcePixels;
+    // convert x and y
+    int x = center.x+offset;
+    int y = center.y+offset;
     // define width and height
+    int w,h;
     if (isSquare) {
         if ( partPolyline.getBoundingBox().width > partPolyline.getBoundingBox().height ) {
-            w = partPolyline.getBoundingBox().width;
+            w = partPolyline.getBoundingBox().width*1/zoom;
         } else {
-            w = partPolyline.getBoundingBox().height;
+            w = partPolyline.getBoundingBox().height*1/zoom;
         }
         h = w;
     } else {
-        w = partPolyline.getBoundingBox().width;
-        h = partPolyline.getBoundingBox().height;
+        w = partPolyline.getBoundingBox().width*1/zoom;
+        h = partPolyline.getBoundingBox().height*1/zoom;
     }
     // check if out of bound
-    int x = center.x+offset-w/2;
-    int y = center.y+offset-h/2;
-    if ( x+w/2 > scaledImg.getWidth() ) x = scaledImg.getWidth()-w/2;
-    else if ( x-w/2 < 0 ) x = w/2;
-    if ( y+h/2 > scaledImg.getHeight() ) y = scaledImg.getHeight()-h/2;
-    else if ( y-h/2 < 0 ) y = h/2;
+    x = x-w/2;
+    y = y-h/2;
+    x = ofClamp(x, 1, sourcePixels.getWidth()*downScale-1);
+    y = ofClamp(y, 1, sourcePixels.getHeight()*downScale-1);
+//    x = ofClamp(x, w/2, sourcePixels.getWidth()*downScale-w/2);
+//    y = ofClamp(y, h/2, sourcePixels.getHeight()*downScale-h/2);
+//    if (x+w/2 > sourcePixels.getWidth()) x = sourcePixels.getWidth()-w/2;
+//    else if ( x-w/2 < 0 ) x = w/2;
+//    if (y+h/2 > sourcePixels.getHeight()) y = sourcePixels.getHeight()-h/2;
+//    else if ( y-h/2 < 0 ) y = h/2;
+//    else {
+//        x = x-w/2;
+//        y = y-h/2;
+//    }
     //
-    facePixels.crop(x*downSize, y*downSize, w*downSize*1/zoom, h*downSize*1/zoom);
-    return facePixels;
+    sourcePixels.crop(x*downScale, y*downScale, w*downScale, h*downScale);
+    return sourcePixels;
 }
 
 
@@ -162,7 +263,7 @@ void ofApp::keyPressed(int key){
     if (key == 'h') grid.generateGridElements();
     if (key == 'g') showGrid = !showGrid;
     if (key == 'f') showGridElements = !showGridElements;
-    if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate());
+//    if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate(),0);
     if (key == 's') vidRecorder.stop();
 }
 
@@ -171,7 +272,15 @@ void ofApp::keyPressed(int key){
 void ofApp::varSetup(){
     // capture
     downSize = 1.3;
+    showCapture = true;
+    //
+    timeOut01 = 2000;
+    timeOut02 = 3000;
+    //
+    timer01.setup(timeOut01, false);
+    timer02.setup(timeOut02, false);
     // ft
+    focusTime = 40;
     smoothingRate = 1;
     enableTracking = true;
     isFocused = false;
@@ -204,9 +313,10 @@ void ofApp::guiDraw(){
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::SliderFloat("Down size input", &downSize, 1, 4);
         ImGui::SliderInt("claheClipLimit", &claheClipLimit, 0, 6);
-        ImGui::Checkbox("isFiltered", &inputIsFiltered);
+        ImGui::Checkbox("inputIsFiltered", &inputIsFiltered);
+        ImGui::Checkbox("outputIsFiltered", &outputIsFiltered);
         ImGui::Checkbox("isClaheColored", &inputIsClaheColored);
-        ImGui::SliderFloat("smoothingRate", &smoothingRate, 0, 6);
+        if (ImGui::SliderFloat("smoothingRate", &smoothingRate, 0, 6)) ft.setSmoothingRate(smoothingRate);
         if (ImGui::CollapsingHeader("Grid", false)) {
             ImGui::SliderInt("gridWidth", &gridWidth, 1, 24);
             ImGui::SliderInt("gridHeight", &gridHeight, 1, 24);

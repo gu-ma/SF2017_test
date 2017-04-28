@@ -6,6 +6,7 @@
 #include "ofxImGui.h"
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
+#include "ofxTimer.h"
 // local files
 #include "Clahe.h"
 #include "ofGrid.h"
@@ -36,24 +37,27 @@ public:
     
     // General
     void varSetup();
-    //
-    
+    // timers
+    ofxTimer timer01, timer02;
+    int timeOut01, timeOut02;
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
     ofImage inputImg, inputImgFiltered, scaledImg, scaledImgFiltered;
     ofPixels inputPixels;
     float downSize;
+    bool showCapture;
     // filter
     int claheClipLimit;
     Clahe clahe;
     bool inputIsFiltered, inputIsClaheColored, outputIsFiltered;
     // ft
     ofxDLib::FaceTracker ft;
-    ofPixels getFacePart(ofPixels pixels, ofPolyline partPolyline, float zoom, float offset, bool isSquare);
+    vector<ofxDLib::Face> faces;
+    ofPixels getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, float downScale, float zoom, float offset, bool isSquare);
     float smoothingRate;
-    bool enableTracking, isFocused;
-    int focusedFaceLabel;
+    bool enableTracking, isFocused, facesFound;
+    int focusedFaceLabel, focusTime;
     // Always the same order: face, leftEye, rightEye, mouth, nose
     vector<int> faceElementsCount;
     float faceElementsOffset, faceElementsZoom;
