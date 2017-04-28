@@ -37,9 +37,11 @@ public:
     
     // General
     void varSetup();
+    void randomizeSettings();
+
     // timers
-    ofxTimer timer01, timer02;
-    int timeOut01, timeOut02;
+    ofxTimer timer01, timer02, timer03;
+    int timeOut01, timeOut02, timeOut03;
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
@@ -58,13 +60,14 @@ public:
     ofPixels getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, float downScale, float zoom, float offset, bool isSquare);
     float smoothingRate;
     bool enableTracking, isFocused, facesFound;
-    int focusedFaceLabel, focusTime;
+    int focusedFaceLabel, focusTime, faceTotalFrame;
+    float faceAvgWidth, faceAvgHeight, faceTotalWidth, faceTotalHeight;
     // Always the same order: face, leftEye, rightEye, mouth, nose
     vector<int> faceElementsCount;
     float faceElementsOffset, faceElementsZoom;
     // grid
     bool showGrid, showGridElements;
-    int gridWidth, gridHeight, gridRes, gridScale, gridMinSize, gridMaxSize;
+    int gridWidth, gridHeight, gridRes, sceneScale, gridMinSize, gridMaxSize;
     bool gridIsSquare;
     ofGrid grid;
     // video recording
