@@ -64,7 +64,7 @@ public:
         this->frameRate = fr;
         this->isRecording = !this->isRecording;
         if(this->isRecording && !this->recorder.isInitialized()) {
-            this->recorder.setup(this->filePath + "/" + this->fileName + "-" + ofGetTimestampString("%Y%m%d-%H%M%S") + this->fileExt, this->width, this->height, this->frameRate, true, false); // no audio
+            this->recorder.setup(this->filePath + "/" + ofGetTimestampString("%Y%m%d-%H%M%S") + "-" + this->fileName + this->fileExt, this->width, this->height, this->frameRate, true, false); // no audio
             this->recorder.start();
         }
     }

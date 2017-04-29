@@ -38,6 +38,13 @@ public:
     // General
     void varSetup();
     void randomizeSettings();
+    int sceneScale;
+    //
+    void loadRecordedVideos(), drawRecordedVideos();
+    int currentRecordedVideo, dirSize;
+    ofDirectory dir;
+    vector<ofVideoPlayer> recordedVideos;
+    bool showRecordedVideos, recordedVideosLoaded;
 
     // timers
     ofxTimer timer01, timer02, timer03;
@@ -67,12 +74,13 @@ public:
     float faceElementsOffset, faceElementsZoom;
     // grid
     bool showGrid, showGridElements;
-    int gridWidth, gridHeight, gridRes, sceneScale, gridMinSize, gridMaxSize;
+    int gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize;
     bool gridIsSquare;
     ofGrid grid;
     // video recording
     ofVidRec vidRecorder;
     bool isRecording;
+    string faceVideoPath;
     // GUI
     ofxImGui::Gui gui;
     void guiDraw();

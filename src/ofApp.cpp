@@ -1,12 +1,14 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     // general
     // ofSetBackgroundAuto(false);
     varSetup();
     ofSetBackgroundColor(0);
-    ofSetWindowPosition(100,100);
+    ofSetWindowPosition(500, 500);
+    ofSetWindowShape(800, 576);
     // GUI
     gui.setup();
     // ft
@@ -31,10 +33,12 @@ void ofApp::setup(){
     
 }
 
+
 //--------------------------------------------------------------
 void ofApp::update(){
     //
     bool newFrame = false;
+    ofSetWindowTitle(ofToString(ofFpsCounter().getFps()));
     //
     #ifdef _USE_LIVE_VIDEO
         cam.update();
@@ -91,7 +95,7 @@ void ofApp::update(){
                 facesFound = false;
                 isFocused = false;
                 isRecording = false;
-                showGrid = false;
+                recordedVideosLoaded = false;
                 // stop vid player
                 vidRecorder.stop();
                 // reset avg face w / h
@@ -106,13 +110,20 @@ void ofApp::update(){
                 // Idle mode
                 // No faces are detected for more than XX seconds
                 showCapture = false;
-                focusTime = 40 + (timeOut02/100);
+//                focusTime = 30 + (timeOut02/100);
+                focusTime = 30;
+                if (!recordedVideosLoaded) {
+                    loadRecordedVideos();
+                    recordedVideosLoaded = true;
+                }
+
             }
         } else {
             // *********
             // Faces are detected
             if (!facesFound) {
                 facesFound = true;
+                showGrid = false;
                 // start 2nd timer
                 timer02.reset();
                 timer02.startTimer();
@@ -136,7 +147,7 @@ void ofApp::update(){
                         // start the timer
                         timer03.reset();
                         timer03.startTimer();
-                        focusTime = 40;
+                        focusTime = 30;
                     }
                     
                     // if the face is the one focused on
@@ -156,7 +167,7 @@ void ofApp::update(){
                         vidRecorder.update(faceCropped);
                         // if not yet recording start the recording
                         if (!isRecording) {
-                            vidRecorder.start("output/face", ofToString(face.label),  256, 256, (int)ofGetFrameRate());
+                            vidRecorder.start(faceVideoPath, ofToString(face.label),  256, 256, (int)ofGetFrameRate());
                             isRecording = true;
                         }
                         // after a certain time, show the grid
@@ -197,6 +208,7 @@ void ofApp::update(){
     }
 }
 
+
 //--------------------------------------------------------------
 void ofApp::draw(){
     
@@ -213,7 +225,7 @@ void ofApp::draw(){
                 if (inputIsFiltered) inputImgFiltered.drawSubsection(0, 0, 192, 192, x*downSize, y*downSize, focusSize*downSize, focusSize*downSize);
                 else inputImg.drawSubsection(0, 0, 192, 192, x*downSize, y*downSize, focusSize*downSize, focusSize*downSize);
                 ofPushStyle();
-                    ofSetColor(28, 249, 255);
+                ofSetColor(ofColor::red);
                     int w = 2 * sceneScale;
                     ofDrawRectangle(0, 0, 192, w);
                     ofDrawRectangle(192-w, 0, w, 192);
@@ -240,10 +252,16 @@ void ofApp::draw(){
 //                ofPopStyle();
                 ofPopMatrix();
             }
+        } else if (facesFound) {
+            ofSetColor(ofColor::red);
+            ofDrawCircle(168, 176, 5);
+            ofDrawBitmapString(ofToString(ft.size()), 180, 180);
+            ofSetColor(255);
         }
         // draw grid
         if (showGrid) grid.draw();
         else if (showGridElements) grid.drawGridElements();
+        if (showRecordedVideos) drawRecordedVideos();
     ofPopMatrix();
     //
     guiDraw();
@@ -281,14 +299,38 @@ ofPixels ofApp::getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, floa
 
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-    if (key == 'h') grid.generateGridElements();
-    if (key == 'g') showGrid = !showGrid;
-    if (key == 'f') showGridElements = !showGridElements;
-//    if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate(),0);
-    if (key == 's') vidRecorder.stop();
+void ofApp::loadRecordedVideos() {
+    dir.listDir(faceVideoPath);
+    dir.sort();
+    if( dir.size() ){
+        if ((int)dir.size()>60) recordedVideos.assign(60, ofVideoPlayer());
+        else recordedVideos.assign((int)dir.size(), ofVideoPlayer());
+
+    }
+    
+    // you can now iterate through the files and load them into the ofImage vector
+    for(int i = 0; i < (int)dir.size() && i<60; i++){
+//        if ( dir.getFile(i).getSize() > 1000 ) {
+//            recordedVideos[i] = ofVideoPlayer::ofVideoPlayer();
+            recordedVideos[i].load(dir.getPath(i));
+//            recordedVideos[i].play();
+            ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
+
+//        }
+    }
+    currentRecordedVideo = 0;
 }
 
+
+//--------------------------------------------------------------
+void ofApp::drawRecordedVideos() {
+    if (recordedVideos.size()) {
+        for(int i = 0; i < recordedVideos.size(); i++){
+//            recordedVideos[i].update();
+//            recordedVideos[i].draw((i%6)*32,(i/6)*32, 32, 32);
+        }
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::randomizeSettings(){
@@ -313,21 +355,35 @@ void ofApp::randomizeSettings(){
     gridIsSquare = (ofRandom(1)>.5) ? true : false;
 }
 
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
+    if (key == 'h') grid.generateGridElements();
+    if (key == 'g') showGrid = !showGrid;
+    if (key == 'f') showGridElements = !showGridElements;
+//    if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate(),0);
+    if (key == 's') vidRecorder.stop();
+}
+
+
 //--------------------------------------------------------------
 void ofApp::varSetup(){
     // capture
     downSize = 1.3;
     showCapture = true;
-    //
-    timeOut01 = 5000; // time before iddle
+    // video recording
+    faceVideoPath = "output/face";
+    showRecordedVideos = true;
+    recordedVideosLoaded = false;
+    // timers
+    timeOut01 = 2000; // time before iddle
     timeOut02 = 3000; // time before showCapture
     timeOut03 = 4000; // time before grid
-    //
     timer01.setup(timeOut01, false);
     timer02.setup(timeOut02, false);
     timer03.setup(timeOut03, false);
     // ft
-    focusTime = 40; // time before focusing + recording
+    focusTime = 30; // time before focusing + recording
     smoothingRate = 1;
     enableTracking = true;
     isFocused = false;
