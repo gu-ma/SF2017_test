@@ -39,12 +39,12 @@ public:
     void varSetup();
     void randomizeSettings();
     int sceneScale;
-    //
-    void loadRecordedVideos(), drawRecordedVideos();
+    // Video Player
+    void loadRecordedVideos(), drawRecordedVideos(), stopRecordedVideos(), updateRecordedVideos() ;
     int currentRecordedVideo, dirSize;
     ofDirectory dir;
     vector<ofVideoPlayer> recordedVideos;
-    bool showRecordedVideos, recordedVideosLoaded;
+    bool showRecordedVideos, reloadRecordedVideos;
 
     // timers
     ofxTimer timer01, timer02, timer03;
@@ -59,7 +59,7 @@ public:
     // filter
     int claheClipLimit;
     Clahe clahe;
-    bool inputIsFiltered, inputIsClaheColored, outputIsFiltered;
+    bool inputIsFiltered, inputIsClaheColored, imgIsFiltered;
     // ft
     ofxDLib::FaceTracker ft;
     vector<ofxDLib::Face> faces;

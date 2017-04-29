@@ -18,7 +18,7 @@ void ofApp::setup(){
     // grid
     grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, gridIsSquare);
     // video recording
-    vidRecorder.init(".mov", "mpeg4", "100k");
+    vidRecorder.init(".mov", "mjpeg", "300k");
     // capture
     #ifdef _USE_LIVE_VIDEO
         cam.setDeviceID(0);
@@ -38,7 +38,7 @@ void ofApp::setup(){
 void ofApp::update(){
     //
     bool newFrame = false;
-    ofSetWindowTitle(ofToString(ofFpsCounter().getFps()));
+    ofSetWindowTitle(ofToString(ofGetFrameRate()));
     //
     #ifdef _USE_LIVE_VIDEO
         cam.update();
@@ -73,7 +73,7 @@ void ofApp::update(){
             ft.findFaces(scaledImg.getPixels(),false);
         }
         // Filter output image
-        if (outputIsFiltered) {
+        if (imgIsFiltered) {
             clahe.filter(inputImg, inputImgFiltered, claheClipLimit, inputIsClaheColored);
             inputImgFiltered.update();
             // assign the inputPixels
@@ -93,10 +93,10 @@ void ofApp::update(){
                 timer01.startTimer();
                 // reset bool
                 facesFound = false;
-                isFocused = false;
                 isRecording = false;
-                recordedVideosLoaded = false;
-                // stop vid player
+                isFocused = false;
+                reloadRecordedVideos = true;
+                // stop vid recorder
                 vidRecorder.stop();
                 // reset avg face w / h
                 faceAvgWidth = 0;
@@ -110,11 +110,11 @@ void ofApp::update(){
                 // Idle mode
                 // No faces are detected for more than XX seconds
                 showCapture = false;
-//                focusTime = 30 + (timeOut02/100);
-                focusTime = 30;
-                if (!recordedVideosLoaded) {
+//                focusTime = 20 + (timeOut02/100);
+                focusTime = 20;
+                if (reloadRecordedVideos) {
                     loadRecordedVideos();
-                    recordedVideosLoaded = true;
+                    reloadRecordedVideos = false;
                 }
 
             }
@@ -122,13 +122,17 @@ void ofApp::update(){
             // *********
             // Faces are detected
             if (!facesFound) {
+                stopRecordedVideos();
                 facesFound = true;
                 showGrid = false;
                 // start 2nd timer
                 timer02.reset();
                 timer02.startTimer();
             }
-            if (timer02.isTimerFinished()) showCapture = true;
+            if (timer02.isTimerFinished()) {
+                showCapture = true;
+            }
+            
             //
             if (showCapture) {
                 // get faces
@@ -147,7 +151,7 @@ void ofApp::update(){
                         // start the timer
                         timer03.reset();
                         timer03.startTimer();
-                        focusTime = 30;
+                        focusTime = 20;
                     }
                     
                     // if the face is the one focused on
@@ -196,7 +200,10 @@ void ofApp::update(){
                 grid.updatePixels(pis);
             }
         }
-        
+
+        //
+        if (showRecordedVideos) updateRecordedVideos();
+
         // grid txt
 //        vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
 //        for (int i=0; i<3; i++) {
@@ -216,6 +223,7 @@ void ofApp::draw(){
     ofPushMatrix();
         ofScale(sceneScale, sceneScale);
         if (showCapture){
+            //
             if (isFocused) {
                 int focusSize = faceAvgWidth*2;
                 int x = focusedFace.rect.getCenter().x - focusSize/2;
@@ -232,36 +240,28 @@ void ofApp::draw(){
                     ofDrawRectangle(0, 192-w, 192, w);
                     ofDrawRectangle(0, 0, w, 192);
                 ofPopStyle();
-            } else {
+            } else{
+                // draw inputImg
                 if (inputIsFiltered) inputImgFiltered.draw(0, 0, 192, 192);
                 else inputImg.draw(0, 0, 192, 192);
                 // draw facetracker
                 ofPushMatrix();
-//                ofPushStyle();
                 ofScale(192/scaledImg.getWidth(), 192/scaledImg.getWidth());
                 ft.draw();
-//                if (isFocused) {
-//                    ofNoFill();
-//                    ofSetLineWidth(2);
-//                    for (auto & face : faces) {
-//                        if (face.label == focusedFaceLabel) {
-//                            ofDrawRectangle(face.rect);
-//                        }
-//                    }
-//                }
-//                ofPopStyle();
                 ofPopMatrix();
             }
-        } else if (facesFound) {
+        }
+        // draw grid
+        if (showGrid) grid.draw();
+        else if (showGridElements) grid.drawGridElements();
+        //
+        if (showRecordedVideos) drawRecordedVideos();
+        if (facesFound) {
             ofSetColor(ofColor::red);
             ofDrawCircle(168, 176, 5);
             ofDrawBitmapString(ofToString(ft.size()), 180, 180);
             ofSetColor(255);
         }
-        // draw grid
-        if (showGrid) grid.draw();
-        else if (showGridElements) grid.drawGridElements();
-        if (showRecordedVideos) drawRecordedVideos();
     ofPopMatrix();
     //
     guiDraw();
@@ -313,7 +313,9 @@ void ofApp::loadRecordedVideos() {
 //        if ( dir.getFile(i).getSize() > 1000 ) {
 //            recordedVideos[i] = ofVideoPlayer::ofVideoPlayer();
             recordedVideos[i].load(dir.getPath(i));
-//            recordedVideos[i].play();
+            recordedVideos[i].setLoopState(OF_LOOP_PALINDROME);
+            recordedVideos[i].setSpeed(30);
+            recordedVideos[i].play();
             ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
 
 //        }
@@ -321,13 +323,32 @@ void ofApp::loadRecordedVideos() {
     currentRecordedVideo = 0;
 }
 
+//--------------------------------------------------------------
+void ofApp::updateRecordedVideos() {
+    if (recordedVideos.size()) {
+        for(int i = 0; i < recordedVideos.size(); i++){
+            recordedVideos[i].update();
+        }
+    }
+}
+
 
 //--------------------------------------------------------------
 void ofApp::drawRecordedVideos() {
     if (recordedVideos.size()) {
         for(int i = 0; i < recordedVideos.size(); i++){
-//            recordedVideos[i].update();
-//            recordedVideos[i].draw((i%6)*32,(i/6)*32, 32, 32);
+            recordedVideos[i].draw((i%2)*96,(i/2)*96, 96, 96);
+        }
+    }
+}
+
+
+//--------------------------------------------------------------
+void ofApp::stopRecordedVideos() {
+    if (recordedVideos.size()) {
+        for(int i = 0; i < recordedVideos.size(); i++){
+            recordedVideos[i].stop();
+            recordedVideos[i].closeMovie();
         }
     }
 }
@@ -374,16 +395,16 @@ void ofApp::varSetup(){
     // video recording
     faceVideoPath = "output/face";
     showRecordedVideos = true;
-    recordedVideosLoaded = false;
+    reloadRecordedVideos = true;
     // timers
     timeOut01 = 2000; // time before iddle
-    timeOut02 = 3000; // time before showCapture
-    timeOut03 = 4000; // time before grid
+    timeOut02 = 2000; // time before showCapture
+    timeOut03 = 3000; // time before grid
     timer01.setup(timeOut01, false);
     timer02.setup(timeOut02, false);
     timer03.setup(timeOut03, false);
     // ft
-    focusTime = 30; // time before focusing + recording
+    focusTime = 20; // time before focusing + recording
     smoothingRate = 1;
     enableTracking = true;
     isFocused = false;
@@ -396,7 +417,7 @@ void ofApp::varSetup(){
     claheClipLimit = 2;
     inputIsFiltered = true;
     inputIsClaheColored = false;
-    outputIsFiltered = true;
+    imgIsFiltered = true;
     // grid
     showGrid = false;
     showGridElements = false;
@@ -423,7 +444,7 @@ void ofApp::guiDraw(){
         ImGui::SliderInt("sceneScale", &sceneScale, 1, 12);
         ImGui::SliderInt("claheClipLimit", &claheClipLimit, 0, 6);
         ImGui::Checkbox("inputIsFiltered", &inputIsFiltered);
-        ImGui::Checkbox("outputIsFiltered", &outputIsFiltered);
+        ImGui::Checkbox("imgIsFiltered", &imgIsFiltered);
         ImGui::Checkbox("isClaheColored", &inputIsClaheColored);
         if (ImGui::SliderFloat("smoothingRate", &smoothingRate, 0, 6)) ft.setSmoothingRate(smoothingRate);
         if (ImGui::CollapsingHeader("Grid", false)) {
