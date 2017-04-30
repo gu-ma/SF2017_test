@@ -39,14 +39,13 @@ public:
     void varSetup();
     void randomizeSettings();
     int sceneScale;
-    bool isIdle;
+    bool isIdle, showIdle;
     // Video Player
-    void loadRecordedVideos(), drawRecordedVideos(), stopRecordedVideos(), updateRecordedVideos() ;
-    int currentRecordedVideo, dirSize;
+    void loadVideos(), drawVideos(), stopVideos(), updateVideos() ;
+    int currentVideo, dirSize, countVideos;
     ofDirectory dir;
-    vector<ofVideoPlayer> recordedVideos;
-    bool showRecordedVideos, reloadRecordedVideos;
-
+    vector<ofVideoPlayer> videosArray;
+    bool showVideos, reloadVideos;
     // timers
     ofxTimer timer01, timer02, timer03;
     int timeOut01, timeOut02, timeOut03;
