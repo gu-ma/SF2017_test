@@ -5,6 +5,7 @@
 void ofApp::setup(){
     // general
     // ofSetBackgroundAuto(false);
+    ofSetVerticalSync(false);  
     varSetup();
     ofSetBackgroundColor(0);
     ofSetWindowPosition(500, 500);
@@ -84,9 +85,10 @@ void ofApp::update(){
         }
         
         // start the "logic" ;)
+        // *********
+        // Faces aren't found
         if ( ft.size() == 0 ) {
-            // *********
-            // Faces were found but are not detected anymore
+            // Faces were found before but are not detected anymore
             if (facesFound) {
                 // start iddle timer
                 timer01.reset();
@@ -109,6 +111,7 @@ void ofApp::update(){
                 // *********
                 // Idle mode
                 // No faces are detected for more than XX seconds
+                isIdle = true;
                 showCapture = false;
 //                focusTime = 20 + (timeOut02/100);
                 focusTime = 20;
@@ -121,14 +124,21 @@ void ofApp::update(){
         } else {
             // *********
             // Faces are detected
-            if (!facesFound) {
-                stopRecordedVideos();
-                facesFound = true;
-                showGrid = false;
+            //
+            // if come from idle mode
+            if (isIdle) {
+                isIdle = false;
                 // start 2nd timer
                 timer02.reset();
                 timer02.startTimer();
             }
+            if (!facesFound) {
+                stopRecordedVideos();
+                showGrid = false;
+                showCapture = true;
+                facesFound = true;
+            }
+            //
             if (timer02.isTimerFinished()) {
                 showCapture = true;
             }
@@ -303,13 +313,11 @@ void ofApp::loadRecordedVideos() {
     dir.listDir(faceVideoPath);
     dir.sort();
     if( dir.size() ){
-        if ((int)dir.size()>60) recordedVideos.assign(60, ofVideoPlayer());
+        if ((int)dir.size()>04) recordedVideos.assign(04, ofVideoPlayer());
         else recordedVideos.assign((int)dir.size(), ofVideoPlayer());
-
     }
-    
     // you can now iterate through the files and load them into the ofImage vector
-    for(int i = 0; i < (int)dir.size() && i<60; i++){
+    for(int i = 0; i < (int)dir.size() && i<04; i++){
 //        if ( dir.getFile(i).getSize() > 1000 ) {
 //            recordedVideos[i] = ofVideoPlayer::ofVideoPlayer();
             recordedVideos[i].load(dir.getPath(i));
@@ -389,15 +397,18 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::varSetup(){
+    // general
+    isIdle = true;
     // capture
     downSize = 1.3;
     showCapture = true;
+    facesFound = false;
     // video recording
     faceVideoPath = "output/face";
     showRecordedVideos = true;
     reloadRecordedVideos = true;
     // timers
-    timeOut01 = 2000; // time before iddle
+    timeOut01 = 10000; // time before iddle
     timeOut02 = 2000; // time before showCapture
     timeOut03 = 3000; // time before grid
     timer01.setup(timeOut01, false);

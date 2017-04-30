@@ -39,6 +39,7 @@ public:
     void varSetup();
     void randomizeSettings();
     int sceneScale;
+    bool isIdle;
     // Video Player
     void loadRecordedVideos(), drawRecordedVideos(), stopRecordedVideos(), updateRecordedVideos() ;
     int currentRecordedVideo, dirSize;
