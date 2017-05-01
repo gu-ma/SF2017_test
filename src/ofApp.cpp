@@ -24,19 +24,21 @@ void ofApp::setup(){
     #ifdef _USE_LIVE_VIDEO
         cam.setDeviceID(0);
         cam.setup(1920, 1080);
-        cam.setPixelFormat(OF_PIXELS_RGB);
-//        cam.setDeviceID(0);
-//        cam.setup(1280, 720);
     #else
         movie.load("vids/test.mov");  // 1280x720
         movie.play();
     #endif
-    
+    // Live
+    live.setup();
+    initLive();
 }
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    //
+    live.update();
+    refreshLive();
     //
     bool newFrame = false;
     ofSetWindowTitle(ofToString(ofGetFrameRate()));
@@ -95,18 +97,12 @@ void ofApp::update(){
                 timer01.reset();
                 timer01.startTimer();
                 // reset bool
-                facesFound = false;
-                isRecording = false;
-                isFocused = false;
-                reloadVideos = true;
+                facesFound = false, isRecording = false, isFocused = false, playVideos = true, showGrid = false;
                 // stop vid recorder
                 vidRecorder.stop();
                 // reset avg face w / h
-                faceAvgWidth = 0;
-                faceAvgHeight = 0;
-                faceTotalFrame = 0;
-                faceTotalWidth = 0;
-                faceTotalHeight = 0;
+                faceAvgWidth = 0, faceAvgHeight = 0, faceTotalFrame = 0, faceTotalWidth = 0, faceTotalHeight = 0;
+                //
                 focusTime = 20;
             }
             if (timer01.isTimerFinished()) {
@@ -117,39 +113,53 @@ void ofApp::update(){
                     isIdle = true;
                     showCapture = false;
                     focusTime = 20 + (timeOut02/100);
+                    // change the volume of track2
+                    initTimes[0] = ofGetElapsedTimef(), startVolumes[0] = .2, endVolumes[0] = .1;
+                    initTimes[1] = ofGetElapsedTimef(), startVolumes[1] = .6, endVolumes[1] = .1;
+                    initTimes[2] = ofGetElapsedTimef(), startVolumes[2] = .4, endVolumes[2] = .2;
+                    initTimes[3] = ofGetElapsedTimef(), startVolumes[3] = .4, endVolumes[3] = .2;
+                    initTimes[4] = ofGetElapsedTimef(), startVolumes[4] = .6, endVolumes[4] = .2;
                 }
-                if (reloadVideos) {
+                if (playVideos) {
                     loadVideos();
-                    reloadVideos = false;
+                    playVideos = false;
+                    //
                 }
-
             }
         } else {
             // *********
             // Faces are detected
-            //
-            // if come from idle mode
-            if (isIdle) {
-                isIdle = false;
+            // It comes from idle mode
+            if (isIdle && !facesFound) {
                 // start 2nd timer
                 timer02.reset();
                 timer02.startTimer();
-            } else if (facesFound) {
-                showCapture = true;
-                isIdle = false;
+                facesFound = true;
+            } else if (!facesFound) {
+                facesFound = true;
             }
-            //
+            // When the 2nd timer is finished show the capture
             if (timer02.isTimerFinished()) {
+                timer02.reset();
                 showCapture = true;
             }
             //
             if (showCapture) {
-                // stop videos and set bool
-                if (!facesFound) {
+                // Stop the idle mode if necessary
+                if (isIdle) {
                     stopVideos();
-                    showGrid = false;
-                    facesFound = true;
+                    isIdle = false;
+                    // Change the volume of track 1
+                    initTimes[0] = ofGetElapsedTimef(), startVolumes[0] = .1, endVolumes[0] = .2;
+                    initTimes[1] = ofGetElapsedTimef(), startVolumes[1] = .1, endVolumes[1] = .6;
+                    initTimes[2] = ofGetElapsedTimef(), startVolumes[2] = .2, endVolumes[2] = .4;
+                    initTimes[3] = ofGetElapsedTimef(), startVolumes[3] = .2, endVolumes[3] = .4;
+                    initTimes[4] = ofGetElapsedTimef(), startVolumes[4] = .2, endVolumes[4] = .6;
                 }
+//                // Hide the grid if it's visible
+//                if (showGrid) {
+//                    showGrid = false;
+//                }
                 // get faces
                 faces = ft.getFaces();
                 vector<ofGrid::PixelsItem> pis;
@@ -179,7 +189,6 @@ void ofApp::update(){
                         faceAvgWidth = faceTotalWidth / faceTotalFrame;
                         faceAvgHeight = faceTotalHeight / faceTotalFrame;
                         ofRectangle r;
-                        //                    ofLog(OF_LOG_NOTICE, "faceAvgWidth " + ofToString(faceAvgWidth));
                         r.setFromCenter(face.rect.getCenter(), faceAvgWidth, faceAvgHeight);
                         // extract the face and record it
                         ofPixels faceCropped = getFacePart(inputPixels, ofPolyline::fromRectangle(r), downSize, .5, 0, true);
@@ -204,29 +213,28 @@ void ofApp::update(){
                         vector<ofPolyline> facePolylines {ofPolyline::fromRectangle(face.rect), face.leftEye, face.rightEye, face.noseTip, face.outerMouth};
                         int j = 0;
                         for (auto & facePolyline : facePolylines) {
-                            if (i < faceElementsCount.at(j)) {
+                            if (i < faceElementsQty.at(j)) {
                                 // WARNING WITH MEMORY
-                                pis.push_back(ofGrid::PixelsItem(getFacePart(inputPixels, facePolyline, downSize, faceElementsZoom, i*faceElementsOffset, true), ofGrid::rightEye));
+                                pis.push_back(ofGrid::PixelsItem(getFacePart(inputPixels, facePolyline, downSize, faceElementsZoom.at(j), i*faceElementsOffset.at(j), true), ofGrid::rightEye));
                             }
                             j++;
                         }
                     }
+                    
+//                    // TEST
+//                    // grid txt
+//                    vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
+//                    for (int i=0; i<3; i++) {
+//                        ofGrid::TextItem ti(txt.at(i), i+1);
+//                        tis.push_back(ti);
+//                        ti.clear();
+//                    }
+//                    grid.updateText(tis);
+                    
                 }
                 grid.updatePixels(pis);
             }
         }
-
-        //
-        if (showVideos) updateVideos();
-
-        // grid txt
-//        vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
-//        for (int i=0; i<3; i++) {
-//            ofGrid::TextItem ti(txt.at(i), i+1);
-//            tis.push_back(ti);
-//            ti.clear();
-//        }
-//        grid.updateText(tis);
     }
 }
 
@@ -237,6 +245,7 @@ void ofApp::draw(){
     // Draw tracked area
     ofPushMatrix();
         ofScale(sceneScale, sceneScale);
+    
         if (showCapture){
             //
             if (isFocused) {
@@ -269,26 +278,25 @@ void ofApp::draw(){
         // draw grid
         if (showGrid) grid.draw();
         else if (showGridElements) grid.drawGridElements();
+//        // TEST
+//        if (!grid.textItems.empty()) {
+//            grid.textItems.at(2).draw(0, 0, 128, 128, ofColor(255, 0, 0));
+//        }
+    
         //
-        if (showVideos) drawVideos();
-        if (!isIdle) {
-            // drawSmiley
-            ofPushStyle();
-            ofPushMatrix();
-                // BAD
-                ofTranslate(161,174);
-                ofSetColor(ofColor::red);
-//                ofNoFill();
-//                //ofSetLineWidth((int)1/sceneScale);
-//                ofDrawRectangle(1,1,14,14);
-//                ofFill();
-                ofDrawCircle(6, 5, 1);
-                ofDrawCircle(12, 5, 1);
-                ofDrawRectangle(5, 10, 8, 1);
-                ofDrawBitmapString(ofToString(ft.size()), 18, 12);
-            ofPopStyle();
-            ofPopMatrix();
-        }
+        if (isIdle) drawVideos();
+        // draw Smiley
+        ofPushStyle();
+        ofPushMatrix();
+            // BAD
+            ofTranslate(161,174);
+            ofSetColor(ofColor::red);
+            ofDrawCircle(6, 5, 1);
+            ofDrawCircle(12, 5, 1);
+            ofDrawRectangle(5, 10, 8, 1);
+            ofDrawBitmapString(ofToString(ft.size()), 18, 12);
+        ofPopStyle();
+        ofPopMatrix();
     ofPopMatrix();
     //
     guiDraw();
@@ -331,43 +339,31 @@ void ofApp::loadVideos() {
     dir.listDir(faceVideoPath);
     dir.sort();
     if(dir.size()>countVideos){
-        videosArray.assign(countVideos, ofVideoPlayer());
+        videosVector.assign(countVideos, ofVideoPlayer());
     }
-//
-//        if ((int)dir.size()>04) Videos.assign(04, ofVideoPlayer());
-//        else Videos.assign((int)dir.size(), ofVideoPlayer());
-//    }
-    // you can now iterate through the files and load them into the ofImage vector
+    // iterate through the files and load them into the vector
     int j = 0;
     // reverse browsing the dir
     for(int i=(int)dir.size()-1; i>=0 && j<countVideos; i--){
         if ( dir.getFile(i).getSize() > 100000 ) {
-            videosArray[j].load(dir.getPath(i));
-            videosArray[j].setLoopState(OF_LOOP_PALINDROME);
-            videosArray[j].setSpeed(30);
-            videosArray[j].play();
-            ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
+            videosVector[j].load(dir.getPath(i));
+            videosVector[j].setLoopState(OF_LOOP_PALINDROME);
+//            videosVector[j].setSpeed(30);
+            videosVector[j].play();
+//            ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
             j++;
         }
     }
     currentVideo = 0;
 }
 
-//--------------------------------------------------------------
-void ofApp::updateVideos() {
-    if (videosArray.size()) {
-        for(int i = 0; i < videosArray.size(); i++){
-            videosArray[i].update();
-        }
-    }
-}
-
 
 //--------------------------------------------------------------
 void ofApp::drawVideos() {
-    if (videosArray.size()) {
-        for(int i = 0; i < videosArray.size(); i++){
-            videosArray[i].draw((i%2)*96,(i/2)*96, 96, 96);
+    if (videosVector.size()) {
+        for(int i = 0; i < videosVector.size(); i++){
+            videosVector[i].update();
+            videosVector[i].draw((i%2)*96,(i/2)*96, 96, 96);
         }
     }
 }
@@ -375,22 +371,24 @@ void ofApp::drawVideos() {
 
 //--------------------------------------------------------------
 void ofApp::stopVideos() {
-    if (videosArray.size()) {
-        for(int i = 0; i < videosArray.size(); i++){
-            videosArray[i].stop();
-            videosArray[i].closeMovie();
+    if (videosVector.size()) {
+        for(int i = 0; i < videosVector.size(); i++){
+            videosVector[i].stop();
+            videosVector[i].closeMovie();
         }
     }
 }
 
+
 //--------------------------------------------------------------
 void ofApp::randomizeSettings(){
     // ft
-    for (auto & f : faceElementsCount) {
-        f = ofRandom(0,20);
+    for (auto & f : faceElementsQty) f = ofRandom(0,20);
+    for (auto & f : faceElementsOffset) f = ofRandom(0, 1);
+    for (int i=0; i < faceElementsZoom.size() ; i++) {
+        faceElementsZoom.at(i) = (i>0) ? ofRandom(.2, .5) : ofRandom(.5, 1);
+        cout << faceElementsZoom.at(i) << endl;
     }
-    faceElementsOffset = ofRandom(0, 1);
-    faceElementsZoom = ofRandom(.2, .7);
     // grid
     if (ofRandom(1)>.5) {
         gridWidth = 6;
@@ -414,6 +412,17 @@ void ofApp::keyPressed(int key){
     if (key == 'f') showGridElements = !showGridElements;
 //    if (key == 'r') vidRecorder.start(256, 256, (int)ofGetFrameRate(),0);
     if (key == 's') vidRecorder.stop();
+    //
+    if (key == '0') initLive();
+    if (key == 'l') live.printAll();
+    if (key == '.') {
+        float v = live.getVolume();
+        live.setVolume( ofClamp(v + 0.1, 0, 1) );
+    }
+    if (key == ',') {
+        float v = live.getVolume();
+        live.setVolume( ofClamp(v - 0.1, 0, 1) );
+    }
 }
 
 
@@ -421,51 +430,40 @@ void ofApp::keyPressed(int key){
 void ofApp::varSetup(){
     // general
     isIdle = true;
+    sceneScale = 2;
     // capture
     downSize = 1.5;
-    showCapture = true;
-    facesFound = false;
+    showCapture = true, facesFound = false;
     // video recording
     faceVideoPath = "output/face";
-    showVideos = true;
-    reloadVideos = true;
+    playVideos = true;
     countVideos = 4;
     // timers
     timeOut01 = 5000; // time before iddle
     timeOut02 = 3000; // time before showCapture
     timeOut03 = 1500; // time before grid
-    timer01.setup(timeOut01, false);
-    timer02.setup(timeOut02, false);
-    timer03.setup(timeOut03, false);
+    timer01.setup(timeOut01, false), timer02.setup(timeOut02, false), timer03.setup(timeOut03, false);
     // ft
     focusTime = 10; // time before focusing + recording
     smoothingRate = 1;
     enableTracking = true;
     isFocused = false;
-    faceAvgWidth = 0;
-    faceAvgHeight = 0;
-    faceTotalFrame = 0;
-    faceTotalWidth = 0;
-    faceTotalHeight = 0;
+    faceAvgWidth = 0, faceAvgHeight = 0, faceTotalFrame = 0, faceTotalWidth = 0, faceTotalHeight = 0;
     // filter
     claheClipLimit = 2;
-    inputIsFiltered = true;
-    inputIsClaheColored = false;
-    imgIsFiltered = true;
+    inputIsFiltered = true, inputIsClaheColored = false, imgIsFiltered = true;
     // grid
     showGrid = false;
     showGridElements = false;
-    gridWidth = 6;
-    gridHeight = 6;
-    gridRes = 32;
-    sceneScale = 1;
-    gridMinSize = 0;
-    gridMaxSize = 8;
+    gridWidth = 6, gridHeight = 6, gridRes = 32, gridMinSize = 0, gridMaxSize = 8;
     gridIsSquare = true;
     // ft capture
-    faceElementsCount.assign(5, 5);
-    faceElementsOffset = 0;
-    faceElementsZoom = .4;
+    faceElementsQty.assign(5,5);
+    faceElementsOffset.assign(5,0);
+    faceElementsZoom.assign(5,.5);
+    // live
+    volumes.assign(5,0), initTimes.assign(5,0), startVolumes.assign(5,0), endVolumes.assign(5,0);
+    resetLive = true;
 }
 
 
@@ -491,15 +489,106 @@ void ofApp::guiDraw(){
             if(ImGui::Button("Refresh Grid")) grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, gridIsSquare);
         }
         if (ImGui::CollapsingHeader("Elements", false)) {
-            ImGui::SliderInt("face Count", &faceElementsCount[0], 0, 20);
-            ImGui::SliderInt("Left Eye Count", &faceElementsCount[1], 0, 20);
-            ImGui::SliderInt("Right Eye Count", &faceElementsCount[2], 0, 20);
-            ImGui::SliderInt("Nose Count", &faceElementsCount[3], 0, 20);
-            ImGui::SliderInt("Mouth Count", &faceElementsCount[4], 0, 20);
-            ImGui::SliderFloat("Offset", &faceElementsOffset, 0, 10);
-            ImGui::SliderFloat("Zoom", &faceElementsZoom, 0.2, 6);
+            ImGui::SliderInt("face Count", &faceElementsQty[0], 0, 20);
+            ImGui::SliderInt("Left Eye Count", &faceElementsQty[1], 0, 20);
+            ImGui::SliderInt("Right Eye Count", &faceElementsQty[2], 0, 20);
+            ImGui::SliderInt("Nose Count", &faceElementsQty[3], 0, 20);
+            ImGui::SliderInt("Mouth Count", &faceElementsQty[4], 0, 20);
+//            ImGui::SliderFloat("Offset", &faceElementsOffset, 0, 10);
+//            ImGui::SliderFloat("Zoom", &faceElementsZoom, 0.2, 6);
         }
     gui.end();
+}
+
+
+
+// LIVE
+//--------------------------------------------------------------
+void ofApp::initLive(){
+    if (live.isLoaded()) {
+        for ( int x=0; x<live.getNumTracks() ; x++ ){
+            ofxAbletonLiveTrack *track = live.getTrack(x);
+            track->setVolume(0);
+        }
+        live.setVolume(0.8);
+        live.stop();
+        live.play();
+        live.setTempo(45);
+        
+    }
+}
+
+
+//--------------------------------------------------------------
+void ofApp::refreshLive() {
+    if (!live.isLoaded()) {
+        return;
+    }
+    if (resetLive) {
+        initLive();
+        resetLive = false;
+    }
+    // change the different values
+    auto duration = 3.f;
+    for (int i=0; i<volumes.size(); i++) {
+        if ( initTimes.at(i)!=0 ) {
+            auto endTime = initTimes.at(i) + duration;
+            auto now = ofGetElapsedTimef();
+            volumes[i] = ofxeasing::map_clamp(now, initTimes[i], endTime, startVolumes[i], endVolumes[i], &ofxeasing::linear::easeIn);
+        }
+    }
+    // change volumes
+    for ( int i=0; i<live.getNumTracks() ; i++ ) live.getTrack(i)->setVolume(volumes[i]);
+
+
+//    // Get tracks
+//    ofxAbletonLiveTrack *track01 = live.getTrack(0); // Drums
+//    ofxAbletonLiveTrack *track02 = live.getTrack(1); // Bass
+//    ofxAbletonLiveTrack *track03 = live.getTrack(2); // Organ
+//    ofxAbletonLiveTrack *track04 = live.getTrack(3); // Voices
+//    ofxAbletonLiveTrack *track05 = live.getTrack(4); // Speech
+//    ofxAbletonLiveTrack *track06 = live.getTrack(5); // Jazz Beat
+//    // Volumes
+//    track01->setVolume(volume[0]);
+//    track02->setVolume(vol02);
+//    track03->setVolume(vol03);
+//    track04->setVolume(vol04);
+//    track05->setVolume(vol05);
+//    track06->setVolume(vol06);
+//    // Fx - Melody
+//    ofxAbletonLiveDevice *device = trackMelody->getDevice("Massive");
+//    ofxAbletonLiveParameter *noiseColor = device->getParameter(1);
+//    ofxAbletonLiveParameter *noiseAmp = device->getParameter(2);
+//    ofxAbletonLiveParameter *dryWet = device->getParameter(3);
+//    noiseColor->setValue(melodyRate01);
+//    noiseAmp->setValue(melodyRate02);
+//    dryWet->setValue(melodyRate01);
+//    // Fx - Chords
+//    ofxAbletonLiveDevice *device1 = trackChords->getDevice("Massive");
+//    ofxAbletonLiveParameter *noiseColor1 = device1->getParameter(1);
+//    ofxAbletonLiveParameter *noiseAmp1 = device1->getParameter(2);
+//    ofxAbletonLiveParameter *cutOff = device1->getParameter(3);
+//    ofxAbletonLiveParameter *resonance = device1->getParameter(4);
+//    ofxAbletonLiveParameter *intensity = device1->getParameter(5);
+//    noiseColor1->setValue(melodyRate01);  // reuse of same ofParameter not good
+//    noiseAmp1->setValue(melodyRate02/4);
+//    cutOff->setValue(chordsRate01);
+//    resonance->setValue(chordsRate02);
+//    intensity->setValue(chordsRate02/2);
+//    // Fx - Bass
+//    ofxAbletonLiveDevice *device2 = trackBass->getDevice("Massive");
+//    ofxAbletonLiveParameter *cutOff1 = device2->getParameter(1);
+//    ofxAbletonLiveParameter *resonance1 = device2->getParameter(2);
+//    ofxAbletonLiveParameter *intensity1 = device2->getParameter(4);
+//    cutOff1->setValue(bassRate01);
+//    resonance1->setValue(bassRate01);
+//    intensity1->setValue(bassRate02);
+//    // Fx - Voice
+//    ofxAbletonLiveDevice *device3 = trackVoice->getDevice("Reaktor 6 FX");
+//    ofxAbletonLiveParameter *synth = device3->getParameter(2);
+//    ofxAbletonLiveParameter *fx = device3->getParameter(5);
+//    synth->setValue(voiceRate01);
+//    fx->setValue(voiceRate01);
 }
 
 

@@ -4,21 +4,25 @@
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "E636972152EDADA61F5B26C9649C67A68C1579FF" : 9223372036854775807,
-    "4131F34236DEB94090351DE98CD44A123F2873AB" : 9223372036854775807,
+    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : 9223372036854775807,
     "55505DE6675E1AEB4CF72AD63A972936EC984D97" : 9223372036854775807,
-    "37526DA425E5430474A14FBFA1BC4525160B5FC1" : 9223372036854775807,
+    "4131F34236DEB94090351DE98CD44A123F2873AB" : 9223372036854775807,
+    "86145F1292B789AB93966AE12565F1D778504ABC" : 9223372036854775807,
+    "39642EB9A7960140EE36619E322E5815FF36D10C" : 9223372036854775807,
     "E0535550E19824754C404DB0DDE5EC8ABB043726" : 9223372036854775807,
-    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : 9223372036854775807
+    "37526DA425E5430474A14FBFA1BC4525160B5FC1" : 9223372036854775807,
+    "E636972152EDADA61F5B26C9649C67A68C1579FF" : 9223372036854775807
   },
-  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "D1F191B6-031C-4276-B6A5-50A89190C3AB",
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "576AB3E3-7315-4358-B24A-050081277D0B",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "E636972152EDADA61F5B26C9649C67A68C1579FF" : "..\/..\/addons\/ofxDLibAntimodular",
-    "4131F34236DEB94090351DE98CD44A123F2873AB" : "..\/..\/addons\/ofxVideoRecorder",
+    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : "SF2017_test\/",
     "55505DE6675E1AEB4CF72AD63A972936EC984D97" : "..\/..\/addons\/ofxImGui",
-    "37526DA425E5430474A14FBFA1BC4525160B5FC1" : "..\/..\/addons\/ofxCv",
+    "4131F34236DEB94090351DE98CD44A123F2873AB" : "..\/..\/addons\/ofxVideoRecorder",
+    "86145F1292B789AB93966AE12565F1D778504ABC" : "..\/..\/addons\/ofxEasing",
+    "39642EB9A7960140EE36619E322E5815FF36D10C" : "..\/..\/addons\/ofxAbletonLive",
     "E0535550E19824754C404DB0DDE5EC8ABB043726" : "..\/..\/addons\/ofxTimer",
-    "F6471B988312530545D1AC88ADAAE0CFF69FA9DF" : "SF2017_test\/"
+    "37526DA425E5430474A14FBFA1BC4525160B5FC1" : "..\/..\/addons\/ofxCv",
+    "E636972152EDADA61F5B26C9649C67A68C1579FF" : "..\/..\/addons\/ofxDLibAntimodular"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "SF2017_test",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -30,6 +34,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "37526DA425E5430474A14FBFA1BC4525160B5FC1"
     },
     {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/genekogan\/ofxAbletonLive.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "39642EB9A7960140EE36619E322E5815FF36D10C"
+    },
+    {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/timscaffidi\/ofxVideoRecorder.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "4131F34236DEB94090351DE98CD44A123F2873AB"
@@ -38,6 +47,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/jvcleave\/ofxImGui.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "55505DE6675E1AEB4CF72AD63A972936EC984D97"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/arturoc\/ofxEasing.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "86145F1292B789AB93966AE12565F1D778504ABC"
     },
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/fx-lange\/ofxTimer.git",

@@ -7,6 +7,8 @@
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
 #include "ofxTimer.h"
+#include "ofxAbletonLive.h"
+#include "ofxeasing.h"
 // local files
 #include "Clahe.h"
 #include "ofGrid.h"
@@ -40,15 +42,18 @@ public:
     void randomizeSettings();
     int sceneScale;
     bool isIdle, showIdle;
+    
     // Video Player
     void loadVideos(), drawVideos(), stopVideos(), updateVideos() ;
     int currentVideo, dirSize, countVideos;
     ofDirectory dir;
-    vector<ofVideoPlayer> videosArray;
-    bool showVideos, reloadVideos;
+    vector<ofVideoPlayer> videosVector;
+    bool playVideos;
+    
     // timers
     ofxTimer timer01, timer02, timer03;
     int timeOut01, timeOut02, timeOut03;
+    
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
@@ -56,10 +61,12 @@ public:
     ofPixels inputPixels;
     float downSize;
     bool showCapture;
+    
     // filter
     int claheClipLimit;
     Clahe clahe;
     bool inputIsFiltered, inputIsClaheColored, imgIsFiltered;
+    
     // ft
     ofxDLib::FaceTracker ft;
     vector<ofxDLib::Face> faces;
@@ -70,17 +77,29 @@ public:
     int focusedFaceLabel, focusTime, faceTotalFrame;
     float faceAvgWidth, faceAvgHeight, faceTotalWidth, faceTotalHeight;
     // Always the same order: face, leftEye, rightEye, mouth, nose
-    vector<int> faceElementsCount;
-    float faceElementsOffset, faceElementsZoom;
+    vector<int> faceElementsQty;
+    vector<float> faceElementsZoom;
+    vector<float> faceElementsOffset;
+//    float faceElementsOffset, faceElementsZoom;
+    
     // grid
     bool showGrid, showGridElements;
     int gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize;
     bool gridIsSquare;
     ofGrid grid;
+    
     // video recording
     ofVidRec vidRecorder;
     bool isRecording;
     string faceVideoPath;
+    
+    // Ableton live
+    ofxAbletonLive live;
+    void refreshLive(), initLive();
+    vector<float> volumes, startVolumes, endVolumes;
+    vector<float> initTimes;
+    bool resetLive;
+    
     // GUI
     ofxImGui::Gui gui;
     void guiDraw();

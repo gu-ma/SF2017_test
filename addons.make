@@ -1,6 +1,9 @@
+ofxAbletonLive
 ofxCv
 ofxDLibAntimodular
+ofxEasing
 ofxImGui
 ofxOpenCv
+ofxOsc
 ofxTimer
 ofxVideoRecorder
