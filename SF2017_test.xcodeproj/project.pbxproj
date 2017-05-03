@@ -5540,6 +5540,406 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>D00D119205E2A3D628A88B73</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>B545014ED9E7BDAF40541A2F</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>src</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>C3E6B03047001AECDDBFE6D3</key>
+			<dict>
+				<key>fileRef</key>
+				<string>B545014ED9E7BDAF40541A2F</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>B545014ED9E7BDAF40541A2F</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIDispatch.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/src/DeckLinkAPIDispatch.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>6FD36D0AA497C485B6B18831</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIVersion.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIVersion.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>7B32F75629C2396B8CECDC05</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPITypes.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPITypes.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>2D9A6E61AA85D9510EE09E12</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIStreaming.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIStreaming.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>FAC5EE15D10859E1D60FA7D4</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIModes.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIModes.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>1872C170F254B6602E12CDDD</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIDiscovery.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIDiscovery.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>629A6FFB5F6F21967798ABC5</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIDeckControl.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIDeckControl.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>57ECB8A844CEA38616B33437</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPIConfiguration.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPIConfiguration.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>679F83B85253D78FF7FCD07F</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>B6213121FD2C228DDF7904CE</string>
+					<string>57ECB8A844CEA38616B33437</string>
+					<string>629A6FFB5F6F21967798ABC5</string>
+					<string>1872C170F254B6602E12CDDD</string>
+					<string>FAC5EE15D10859E1D60FA7D4</string>
+					<string>2D9A6E61AA85D9510EE09E12</string>
+					<string>7B32F75629C2396B8CECDC05</string>
+					<string>6FD36D0AA497C485B6B18831</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>include</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>C7B3D6CE25910CD4B539346E</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>679F83B85253D78FF7FCD07F</string>
+					<string>D00D119205E2A3D628A88B73</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>DeckLink</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>AACF561F88A0CA2497850257</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>C7B3D6CE25910CD4B539346E</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>libs</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>B6213121FD2C228DDF7904CE</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkAPI.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/libs/DeckLink/include/DeckLinkAPI.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>3D2C3CDD948D95892CD56701</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>VideoFrame.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/VideoFrame.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>F5E5526E27B2A4D8E2B33210</key>
+			<dict>
+				<key>fileRef</key>
+				<string>C8D3643CA17BDD17F0696016</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>C8D3643CA17BDD17F0696016</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>VideoFrame.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/VideoFrame.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>764A89DCC76052D47351ED80</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>TripleBuffer.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/TripleBuffer.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>FC6CAB1D21EEEAD0BAD45DF5</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxBlackMagic.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/ofxBlackMagic.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>0FC43B3D38A4D41A1AD95D39</key>
+			<dict>
+				<key>fileRef</key>
+				<string>F8A6395E8DBEC171CB3827BF</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>F8A6395E8DBEC171CB3827BF</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ofxBlackMagic.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/ofxBlackMagic.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>014812804A204B78DE92F463</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkController.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/DeckLinkController.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>DD6B7D26B640FE59CC56C615</key>
+			<dict>
+				<key>fileRef</key>
+				<string>8A22BD0CAF62A2716F682577</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>8A22BD0CAF62A2716F682577</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>DeckLinkController.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/DeckLinkController.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>6089DD11958EED658B1D8273</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ColorConversion.h</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/ColorConversion.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>51FE12845FB33EEAA8F72CD6</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>B1EF496137DFABA53C7D2891</string>
+					<string>6089DD11958EED658B1D8273</string>
+					<string>8A22BD0CAF62A2716F682577</string>
+					<string>014812804A204B78DE92F463</string>
+					<string>F8A6395E8DBEC171CB3827BF</string>
+					<string>FC6CAB1D21EEEAD0BAD45DF5</string>
+					<string>764A89DCC76052D47351ED80</string>
+					<string>C8D3643CA17BDD17F0696016</string>
+					<string>3D2C3CDD948D95892CD56701</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>src</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>35272275289EF52A64533325</key>
+			<dict>
+				<key>children</key>
+				<array>
+					<string>51FE12845FB33EEAA8F72CD6</string>
+					<string>AACF561F88A0CA2497850257</string>
+				</array>
+				<key>isa</key>
+				<string>PBXGroup</string>
+				<key>name</key>
+				<string>ofxBlackmagic</string>
+				<key>sourceTree</key>
+				<string>&lt;group&gt;</string>
+			</dict>
+			<key>E6ADFAF5B64F107FD970E6E7</key>
+			<dict>
+				<key>fileRef</key>
+				<string>B1EF496137DFABA53C7D2891</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>B1EF496137DFABA53C7D2891</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>30</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>ColorConversion.cpp</string>
+				<key>path</key>
+				<string>../../../addons/ofxBlackmagic/src/ColorConversion.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>76D683B07B9E2460C787BDA9</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -5821,6 +6221,7 @@
 				<key>children</key>
 				<array>
 					<string>2BD862020B7783ABB823FBFF</string>
+					<string>35272275289EF52A64533325</string>
 					<string>6025FAF6414C2CA589764D26</string>
 					<string>6807CA8ABBE24807E7E909C5</string>
 					<string>0D0595A62FF5ED8D37029107</string>
@@ -5990,6 +6391,11 @@
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>../../../addons/ofxAbletonLive/src</string>
+						<string>../../../addons/ofxBlackmagic/libs</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/include</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/src</string>
+						<string>../../../addons/ofxBlackmagic/src</string>
 						<string>../../../addons/ofxCv/libs/ofxCv/include</string>
 						<string>../../../addons/ofxCv/libs/CLD/include/CLD</string>
 						<string>../../../addons/ofxCv/src</string>
@@ -6107,6 +6513,11 @@
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>../../../addons/ofxAbletonLive/src</string>
+						<string>../../../addons/ofxBlackmagic/libs</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/include</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/src</string>
+						<string>../../../addons/ofxBlackmagic/src</string>
 						<string>../../../addons/ofxCv/libs/ofxCv/include</string>
 						<string>../../../addons/ofxCv/libs/CLD/include/CLD</string>
 						<string>../../../addons/ofxCv/src</string>
@@ -6220,6 +6631,11 @@
 					<string>AFFB17AA4F2B45440FD9E280</string>
 					<string>DB155A1A19A59BAF33B8C189</string>
 					<string>547B74FF3416E79DAD062B3E</string>
+					<string>E6ADFAF5B64F107FD970E6E7</string>
+					<string>DD6B7D26B640FE59CC56C615</string>
+					<string>0FC43B3D38A4D41A1AD95D39</string>
+					<string>F5E5526E27B2A4D8E2B33210</string>
+					<string>C3E6B03047001AECDDBFE6D3</string>
 					<string>B6840996567E78436F7ECFAB</string>
 					<string>F76B4A79BD8DE4854141CB47</string>
 					<string>EBCDE831EFAE08274E799C97</string>
@@ -6359,6 +6775,11 @@
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>../../../addons/ofxAbletonLive/src</string>
+						<string>../../../addons/ofxBlackmagic/libs</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/include</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/src</string>
+						<string>../../../addons/ofxBlackmagic/src</string>
 						<string>../../../addons/ofxCv/libs/ofxCv/include</string>
 						<string>../../../addons/ofxCv/libs/CLD/include/CLD</string>
 						<string>../../../addons/ofxCv/src</string>
@@ -6466,6 +6887,11 @@
 						<string>$(OF_CORE_HEADERS)</string>
 						<string>src</string>
 						<string>../../../addons/ofxAbletonLive/src</string>
+						<string>../../../addons/ofxBlackmagic/libs</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/include</string>
+						<string>../../../addons/ofxBlackmagic/libs/DeckLink/src</string>
+						<string>../../../addons/ofxBlackmagic/src</string>
 						<string>../../../addons/ofxCv/libs/ofxCv/include</string>
 						<string>../../../addons/ofxCv/libs/CLD/include/CLD</string>
 						<string>../../../addons/ofxCv/src</string>

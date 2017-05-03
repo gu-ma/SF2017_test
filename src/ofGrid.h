@@ -25,8 +25,8 @@ public:
 
     enum ContentType { pixels, text };
     enum PixelsType { face, leftEye, rightEye, mouth, nose };
-    enum GridType { mosaic, random, big, small };
-    enum LayoutType { faceLike, mixed, repeat };
+//    enum GridType { mosaic, random, big, small };
+//    enum LayoutType { faceLike, mixed, repeat };
 
     //
     class PixelsItem {
@@ -61,70 +61,70 @@ public:
     };
     
     //
-    class TextItem {
-    public:
-        string textBuffer;
-        int scaling, fontSize, lineHeight, padding;
-        ofTrueTypeFont textDisplay;
-        
-        TextItem(string txt, int s): textBuffer(txt), scaling(s) {
-            this->lineHeight = 10;
-            this->fontSize = 6*s;
-            this->padding = 6*s;
-            textDisplay.load("fonts/pixelmix.ttf", this->fontSize, false, false, false, 144);
-            textDisplay.setLineHeight(this->lineHeight*s);
-        }
-        
-        void draw(int x, int y, int w, int h, ofColor bckgrdColor) {
-            if (!textBuffer.empty()) {
-                wrapString(w-this->padding*2);
-                ofSetColor(bckgrdColor);
-                ofDrawRectangle(x, y, w, h);
-                ofSetColor(255);
-                textDisplay.drawString(textBuffer, x+this->padding/2, y+this->padding+4*this->scaling);
-//                textDisplay.drawString(textBuffer, x+3*scaling, y+4*scaling+(6*scaling));
-            }
-        }
-        
-        int getArea() {
-            int c = 1; // buffer to add for the char width
-            int area = textBuffer.size() * (this->textDisplay.getLineHeight()) * (this->textDisplay.getSize()+c);
-            int perimeterPadding = sqrt(area) * 4 * this->padding;
-            return (area + perimeterPadding);
-        }
-        
-        void wrapString(int width) {
-            if (!textBuffer.empty()) {
-                string typeWrapped = "";
-                string tempString = "";
-                vector <string> words = ofSplitString(textBuffer, " ");
-                for(int i=0; i<words.size(); i++) {
-                    string wrd = words[i];
-                    if (i > 0) {
-                        // if we aren't on the first word, add a space
-                        tempString += " ";
-                    }
-                    tempString += wrd;
-                    int stringwidth = textDisplay.stringWidth(tempString);
-                    if(stringwidth >= width) {
-                        typeWrapped += "\n";
-                        tempString = wrd;		// make sure we're including the extra word on the next line
-                    } else if (i > 0) {
-                        // if we aren't on the first word, add a space
-                        typeWrapped += " ";
-                    }
-                    typeWrapped += wrd;
-                }
-                textBuffer = typeWrapped;
-            }
-        }
-
-        void clear() {
-            textBuffer.clear();
-            scaling = 1;
-        }
-        
-    };
+//    class TextItem {
+//    public:
+//        string textBuffer;
+//        int scaling, fontSize, lineHeight, padding;
+//        ofTrueTypeFont textDisplay;
+//        
+//        TextItem(string txt, int s): textBuffer(txt), scaling(s) {
+//            this->lineHeight = 10;
+//            this->fontSize = 6*s;
+//            this->padding = 6*s;
+//            textDisplay.load("fonts/pixelmix.ttf", this->fontSize, false, false, false, 144);
+//            textDisplay.setLineHeight(this->lineHeight*s);
+//        }
+//        
+//        void draw(int x, int y, int w, int h, ofColor bckgrdColor) {
+//            if (!textBuffer.empty()) {
+//                wrapString(w-this->padding*2);
+//                ofSetColor(bckgrdColor);
+//                ofDrawRectangle(x, y, w, h);
+//                ofSetColor(255);
+//                textDisplay.drawString(textBuffer, x+this->padding/2, y+this->padding+4*this->scaling);
+////                textDisplay.drawString(textBuffer, x+3*scaling, y+4*scaling+(6*scaling));
+//            }
+//        }
+//        
+//        int getArea() {
+//            int c = 1; // buffer to add for the char width
+//            int area = textBuffer.size() * (this->textDisplay.getLineHeight()) * (this->textDisplay.getSize()+c);
+//            int perimeterPadding = sqrt(area) * 4 * this->padding;
+//            return (area + perimeterPadding);
+//        }
+//        
+//        void wrapString(int width) {
+//            if (!textBuffer.empty()) {
+//                string typeWrapped = "";
+//                string tempString = "";
+//                vector <string> words = ofSplitString(textBuffer, " ");
+//                for(int i=0; i<words.size(); i++) {
+//                    string wrd = words[i];
+//                    if (i > 0) {
+//                        // if we aren't on the first word, add a space
+//                        tempString += " ";
+//                    }
+//                    tempString += wrd;
+//                    int stringwidth = textDisplay.stringWidth(tempString);
+//                    if(stringwidth >= width) {
+//                        typeWrapped += "\n";
+//                        tempString = wrd;		// make sure we're including the extra word on the next line
+//                    } else if (i > 0) {
+//                        // if we aren't on the first word, add a space
+//                        typeWrapped += " ";
+//                    }
+//                    typeWrapped += wrd;
+//                }
+//                textBuffer = typeWrapped;
+//            }
+//        }
+//
+//        void clear() {
+//            textBuffer.clear();
+//            scaling = 1;
+//        }
+//        
+//    };
 
     class GridElement {
     public:
@@ -134,13 +134,16 @@ public:
         int alpha;
         GridElement(ofRectangle rect, ContentType ct, PixelsType pt, int a): rectangle(rect), contentType(ct), pixelsType(pt), alpha(a){
         }
+        void setAlpha(int a) {
+            this->alpha = a;
+        }
     };
 
     int width, height, resolution, minSize, maxSize;
     bool squareOnly;
     vector<PixelsItem> pixelsItems;
-    vector<TextItem> textItems;
     vector<GridElement> GridElements;
+    //    vector<TextItem> textItems;
     
     //
     void init(int width, int height, int resolution, int minSize, int maxSize, bool squareOnly) {
@@ -167,9 +170,13 @@ public:
             int h = ge.rectangle.getHeight()*this->resolution;
             //
             if (ge.contentType == pixels && !this->pixelsItems.empty()) {
+//                ofSetColor( ofMap(ofNoise(x, y),0, 1, 0, 255), ofMap(ofNoise(y, x),0, 1, 255, 0), ofMap(ofNoise(ge.alpha),0, 1, 255, 0), ge.alpha);
+//                ofSetColor( ofMap(x, 0, this->width*this->resolution, 0, 255), ofMap(y, 0, this->height*this->resolution, 0, 255), 255, ge.alpha);
+                ofSetColor(255, ge.alpha);
                 PixelsItem pc = this->pixelsItems.at((j)%this->pixelsItems.size());
                 pc.cropAndDraw(x, y, w, h);
                 j ++;
+                ofSetColor(255);
             }
             //
 //            if (ge.contentType == text && !this->textItems.empty()) {
@@ -189,14 +196,14 @@ public:
     void clearPixels(){
         this->pixelsItems.clear();
     }
-
-    void updateText(vector<TextItem> ti){
-        this->textItems.assign(ti.begin(), ti.end());
-    }
-
-    void clearText(){
-        this->textItems.clear();
-    }
+//
+//    void updateText(vector<TextItem> ti){
+//        this->textItems.assign(ti.begin(), ti.end());
+//    }
+//
+//    void clearText(){
+//        this->textItems.clear();
+//    }
     
     void clearGridElements() {
         this->GridElements.clear();
@@ -206,6 +213,7 @@ public:
         this->clearGridElements();
         int i = 0;
         int x,y,w,h,rw,rh;
+        
 //        // create text grid
 //        while (!this->textItems.empty() && i<textItems.size()) {
 //            x = ofRandom(this->width);
@@ -221,25 +229,31 @@ public:
 ////            }
 //            if (addGridElement(i, text, leftEye, x, y, w, h)) i++;
 //        }
+        
         // create pixel grid
-        while (this->canAddGridElement()) {
-            x = ofRandom(this->width);
-            y = ofRandom(this->height);
-            rw = ofRandom(this->maxSize)+1;
-            if (squareOnly) {
-                if (rw <= (this->width-x) && rw <= (this->height-y)) {
-                    w = rw;
-                    h = rw;
+        // sometime makes it following the grid exactly
+        if (ofRandom(1)<.6 && this->width==6 && this->height==6 && this->resolution==32) {
+            createGridTemplate(squareOnly); // 6*6 only
+        } else {
+            while (this->canAddGridElement()) {
+                x = ofRandom(this->width);
+                y = ofRandom(this->height);
+                rw = ofRandom(this->maxSize)+1;
+                if (squareOnly) {
+                    if (rw <= (this->width-x) && rw <= (this->height-y)) {
+                        w = rw;
+                        h = rw;
+                    } else {
+                        w = (this->width-x > this->height-y) ? this->height-y : this->width-x;
+                        h = w;
+                    }
                 } else {
-                    w = (this->width-x > this->height-y) ? this->height-y : this->width-x;
-                    h = w;
+                    w = (rw <= (this->width-x)) ? rw : this->width-x;
+                    rh = ofRandom(this->maxSize)+1;
+                    h = (rh <= (this->height-y)) ? rh : this->height-y;
                 }
-            } else {
-                w = (rw <= (this->width-x)) ? rw : this->width-x;
-                rh = ofRandom(this->maxSize)+1;
-                h = (rh <= (this->height-y)) ? rh : this->height-y;
+                if (addGridElement(i, pixels, leftEye, x, y, w, h)) i++;
             }
-            if (addGridElement(i, pixels, leftEye, x, y, w, h)) i++;
         }
     }
     
@@ -251,7 +265,7 @@ public:
             if (rect.intersects(GridElement.rectangle)) intersects = true;
         }
         if (!intersects) {
-            GridElement gh(rect,ct,pt,100);
+            GridElement gh(rect,ct,pt,255);
             GridElements.push_back(gh);
             return true;
         } else {
@@ -283,6 +297,68 @@ public:
         bool b = (area<gridArea) ? true : false;
         return b;
         
+    }
+    
+    void createGridTemplate(bool isSquare) {
+        if (isSquare) {
+            // first row
+            addGridElement(1, pixels, leftEye, 0, 0, 1, 1);
+            addGridElement(2, pixels, leftEye, 0, 1, 1, 1);
+            addGridElement(3, pixels, leftEye, 0, 2, 1, 1);
+            addGridElement(4, pixels, leftEye, 0, 3, 1, 1);
+            addGridElement(5, pixels, leftEye, 0, 4, 1, 1);
+            addGridElement(6, pixels, leftEye, 0, 5, 1, 1);
+            // 2nd row
+            addGridElement(7, pixels, leftEye, 1, 0, 1, 1);
+            addGridElement(8, pixels, leftEye, 1, 1, 1, 1);
+            addGridElement(9, pixels, leftEye, 1, 2, 1, 1);
+            addGridElement(10, pixels, leftEye, 1, 3, 2, 2);
+            addGridElement(11, pixels, leftEye, 1, 5, 1, 1);
+            // 3rd row
+            addGridElement(12, pixels, leftEye, 2, 0, 2, 2);
+            addGridElement(13, pixels, leftEye, 2, 2, 1, 1);
+            addGridElement(14, pixels, leftEye, 2, 5, 1, 1);
+            // 4th row
+            addGridElement(15, pixels, leftEye, 3, 2, 1, 1);
+            addGridElement(16, pixels, leftEye, 3, 3, 1, 1);
+            addGridElement(17, pixels, leftEye, 3, 4, 1, 1);
+            addGridElement(18, pixels, leftEye, 3, 5, 1, 1);
+            // 5th row
+            addGridElement(19, pixels, leftEye, 4, 0, 1, 1);
+            addGridElement(20, pixels, leftEye, 4, 1, 1, 1);
+            addGridElement(21, pixels, leftEye, 4, 2, 1, 1);
+            addGridElement(22, pixels, leftEye, 4, 3, 1, 1);
+            addGridElement(23, pixels, leftEye, 4, 4, 2, 2);
+            // 6th row
+            addGridElement(24, pixels, leftEye, 5, 0, 1, 1);
+            addGridElement(25, pixels, leftEye, 5, 1, 1, 1);
+            addGridElement(26, pixels, leftEye, 5, 2, 1, 1);
+            addGridElement(27, pixels, leftEye, 5, 3, 1, 1);
+        } else {
+            // first row
+            addGridElement(1, pixels, leftEye, 0, 0, 1, 1);
+            addGridElement(2, pixels, leftEye, 0, 1, 1, 3);
+            addGridElement(3, pixels, leftEye, 0, 4, 1, 1);
+            addGridElement(4, pixels, leftEye, 0, 5, 4, 1);
+            // 2nd row
+            addGridElement(5, pixels, leftEye, 1, 0, 1, 2);
+            addGridElement(6, pixels, leftEye, 1, 2, 3, 1);
+            addGridElement(7, pixels, leftEye, 1, 3, 2, 2);
+            // 3rd row
+            addGridElement(8, pixels, leftEye, 2, 0, 2, 2);
+            // 4th row
+            addGridElement(9, pixels, leftEye, 3, 3, 2, 1);
+            addGridElement(10, pixels, leftEye, 3, 4, 1, 1);
+            // 5th row
+            addGridElement(11, pixels, leftEye, 4, 0, 1, 2);
+            addGridElement(12, pixels, leftEye, 4, 2, 1, 1);
+            addGridElement(13, pixels, leftEye, 4, 4, 2, 2);
+            // 6th row
+            addGridElement(14, pixels, leftEye, 5, 0, 1, 1);
+            addGridElement(15, pixels, leftEye, 5, 1, 1, 1);
+            addGridElement(16, pixels, leftEye, 5, 2, 1, 2);
+        }
+
     }
     
     

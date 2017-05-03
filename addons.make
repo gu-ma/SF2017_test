@@ -1,4 +1,5 @@
 ofxAbletonLive
+ofxBlackmagic
 ofxCv
 ofxDLibAntimodular
 ofxEasing

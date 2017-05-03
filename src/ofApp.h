@@ -9,12 +9,14 @@
 #include "ofxTimer.h"
 #include "ofxAbletonLive.h"
 #include "ofxeasing.h"
+#include "ofxBlackMagic.h"
 // local files
 #include "Clahe.h"
 #include "ofGrid.h"
 #include "ofVidRec.h" // encapsulate ofxVideoRecorder.h for convenience
 
 #define _USE_LIVE_VIDEO
+//#define _USE_BLACKMAGIC
 
 class ofApp : public ofBaseApp{
     
@@ -45,15 +47,18 @@ public:
     
     // Video Player
     void loadVideos(), drawVideos(), stopVideos(), updateVideos() ;
-    int currentVideo, dirSize, countVideos;
+    int dirSize, countVideos;
     ofDirectory dir;
     vector<ofVideoPlayer> videosVector;
     bool playVideos;
     
     // timers
-    ofxTimer timer01, timer02, timer03;
-    int timeOut01, timeOut02, timeOut03;
+    ofxTimer timer01, timer02, timer03, timer04;
+    int timeOut01, timeOut02, timeOut03, timeOut04;
     
+    // BlackMagic
+    ofxBlackMagic blackCam;
+
     // capture
     ofVideoGrabber cam;
     ofVideoPlayer movie;
@@ -65,7 +70,7 @@ public:
     // filter
     int claheClipLimit;
     Clahe clahe;
-    bool inputIsFiltered, inputIsClaheColored, imgIsFiltered;
+    bool inputIsFiltered, inputIsColored, imgIsFiltered, imgIsColored;
     
     // ft
     ofxDLib::FaceTracker ft;
@@ -85,6 +90,7 @@ public:
     // grid
     bool showGrid, showGridElements;
     int gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize;
+    float initTimeGrid;
     bool gridIsSquare;
     ofGrid grid;
     
@@ -97,11 +103,15 @@ public:
     ofxAbletonLive live;
     void refreshLive(), initLive();
     vector<float> volumes, startVolumes, endVolumes;
-    vector<float> initTimes;
+    vector<float> initTimesVolumes;
     bool resetLive;
     
     // GUI
     ofxImGui::Gui gui;
     void guiDraw();
     
+    //Text
+    vector<ofTrueTypeFont> textDisplay;
+    bool showText;
+    string wrapString(string text, int width, ofTrueTypeFont textField);
 };
