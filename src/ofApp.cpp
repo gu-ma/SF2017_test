@@ -8,8 +8,8 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     varSetup();
     ofSetBackgroundColor(0);
+    ofSetWindowShape(800, 400);
     ofSetWindowPosition(500, 500);
-    ofSetWindowShape(800, 576);
     // GUI
     gui.setup();
     // ft
@@ -324,6 +324,9 @@ void ofApp::draw(){
         // draw grid
         if (showGrid) grid.draw();
         else if (showGridElements) grid.drawGridElements();
+        //
+        if (isIdle) drawVideos();
+    
 //        // TEST
 //        if (!grid.textItems.empty()) {
 //            grid.textItems.at(2).draw(0, 0, 128, 128, ofColor(255, 0, 0));
@@ -331,7 +334,7 @@ void ofApp::draw(){
         // Text TEST
         if (showText) {
             ofPushStyle();
-                ofSetColor(ofColor(255,50,0,200));
+                ofSetColor(ofColor(255,50,0,220));
                 int padding = 4;
                 int s = 32;
                 int w = s*2;
@@ -348,8 +351,6 @@ void ofApp::draw(){
             ofPopStyle();
         }
     
-        //
-        if (isIdle) drawVideos();
         // draw Smiley
         ofPushStyle();
         ofPushMatrix();
@@ -413,7 +414,7 @@ void ofApp::loadVideos() {
         if ( dir.getFile(i).getSize() > 100000 ) {
             videosVector[j].load(dir.getPath(i));
             videosVector[j].setLoopState(OF_LOOP_PALINDROME);
-//            videosVector[j].setSpeed(30);
+            videosVector[j].setSpeed(30);
             videosVector[j].play();
 //            ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
             j++;
@@ -427,14 +428,14 @@ void ofApp::drawVideos() {
     if (videosVector.size()) {
         for(int i = 0; i < videosVector.size(); i++){
             videosVector[i].update();
-            if (videosVector[i].isFrameNew()) {
+//            if (videosVector[i].isFrameNew()) {
                 videosVector[i].draw((i%2)*96,(i/2)*96, 96, 96);
 //                ofImage img;
 //                img.setFromPixels(videosVector[i].getPixels());
 //                img.resize(192,192);
 //                //            img.drawSubsection((i%4)*48, 0, 48, 192, (i%4)*48, 0);
 //                img.drawSubsection((i%2)*96, (i/2)*96, 96, 96, (i%2)*96, (i/2)*96);
-            }
+//            }
 
         }
     }
@@ -509,7 +510,7 @@ void ofApp::keyPressed(int key){
 void ofApp::varSetup(){
     // general
     isIdle = true;
-    sceneScale = 2;
+    sceneScale = 1;
     // capture
     downSize = 1.5;
     showCapture = true, facesFound = false;
@@ -531,7 +532,7 @@ void ofApp::varSetup(){
     faceAvgWidth = 0, faceAvgHeight = 0, faceTotalFrame = 0, faceTotalWidth = 0, faceTotalHeight = 0;
     // filter
     claheClipLimit = 2;
-    inputIsFiltered = true, inputIsColored = false, imgIsFiltered = true, imgIsColored = true;
+    inputIsFiltered = true, inputIsColored = false, imgIsFiltered = true, imgIsColored = false;
     // grid
     showGrid = false;
     showGridElements = false;
@@ -545,7 +546,7 @@ void ofApp::varSetup(){
     volumes.assign(5,0), initTimesVolumes.assign(5,0), startVolumes.assign(5,0), endVolumes.assign(5,0);
     resetLive = true;
     // text
-    showText = true;
+    showText = false;
     textDisplay.resize(3);
     int i = 1;
     for (auto & t : textDisplay) {

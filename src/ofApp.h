@@ -16,7 +16,7 @@
 #include "ofVidRec.h" // encapsulate ofxVideoRecorder.h for convenience
 
 #define _USE_LIVE_VIDEO
-//#define _USE_BLACKMAGIC
+#define _USE_BLACKMAGIC
 
 class ofApp : public ofBaseApp{
     
