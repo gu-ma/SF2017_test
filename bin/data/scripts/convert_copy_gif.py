@@ -4,8 +4,8 @@ import subprocess
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Change here !!
-source_dir = '/Users/guillaume/Documents/00-App/Frameworks/OF/of_v0.9.7_osx_release/apps/myApps/SF2017_test/bin/data/output/face'
-target_dir = '/Volumes/Exchange/temp'
+source_dir = '/Users/ausleihe/Documents/00-App/of_v0.9.8_osx_release/apps/myApps/SF2017_test/bin/data/output/face'
+target_dir = '/Volumes/face'
 usr_bin_dir = '/usr/local/bin/'
 # The extension to search for
 extension = '.mov'

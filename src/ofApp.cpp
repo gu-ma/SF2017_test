@@ -115,7 +115,7 @@ void ofApp::update(){
                 // reset avg face w / h
                 faceAvgWidth = 0, faceAvgHeight = 0, faceTotalFrame = 0, faceTotalWidth = 0, faceTotalHeight = 0;
                 //
-                focusTime = 20;
+                focusTime = 10;
             }
             if (timer01.isTimerFinished()) {
                 // *********
@@ -124,7 +124,7 @@ void ofApp::update(){
                 if (!isIdle) {
                     isIdle = true;
                     showCapture = false;
-                    focusTime = 20 + (timeOut02/100);
+                    focusTime = 10 + (timeOut02/100);
                     // change the volume of track2
                     initTimesVolumes[0] = ofGetElapsedTimef(), startVolumes[0] = .2, endVolumes[0] = .1;
                     initTimesVolumes[1] = ofGetElapsedTimef(), startVolumes[1] = .6, endVolumes[1] = .1;
@@ -187,7 +187,7 @@ void ofApp::update(){
                         // start the timer
                         timer03.reset();
                         timer03.startTimer();
-                        focusTime = 20;
+                        focusTime = 10;
                     }
                     
                     // if the face is the one focused on
@@ -512,7 +512,7 @@ void ofApp::varSetup(){
     isIdle = true;
     sceneScale = 1;
     // capture
-    downSize = 1.5;
+    downSize = 1;
     showCapture = true, facesFound = false;
     // video recording
     faceVideoPath = "output/face";
@@ -520,8 +520,8 @@ void ofApp::varSetup(){
     countVideos = 4;
     // timers
     timeOut01 = 5000; // time before iddle
-    timeOut02 = 3000; // time before showCapture
-    timeOut03 = 1500; // time before grid
+    timeOut02 = 2000; // time before showCapture
+    timeOut03 = 1000; // time before grid
     timeOut04 = 500; // time to keep focus after loosing a face
     timer01.setup(timeOut01, false), timer02.setup(timeOut02, false), timer03.setup(timeOut03, false), timer04.setup(timeOut04, false);
     // ft
