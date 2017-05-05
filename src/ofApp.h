@@ -14,9 +14,10 @@
 #include "Clahe.h"
 #include "ofGrid.h"
 #include "ofVidRec.h" // encapsulate ofxVideoRecorder.h for convenience
+#include "ofLogAudio.h"
 
 #define _USE_LIVE_VIDEO
-#define _USE_BLACKMAGIC
+//#define _USE_BLACKMAGIC
 
 class ofApp : public ofBaseApp{
     
@@ -53,8 +54,8 @@ public:
     bool playVideos;
     
     // timers
-    ofxTimer timer01, timer02, timer03, timer04;
-    int timeOut01, timeOut02, timeOut03, timeOut04;
+    ofxTimer timer01, timer02, timer03, timer04, timer05;
+    int timeOut01, timeOut02, timeOut03, timeOut04, timeOut05;
     
     // BlackMagic
     ofxBlackMagic blackCam;
@@ -112,6 +113,13 @@ public:
     
     //Text
     vector<ofTrueTypeFont> textDisplay;
+    vector<string> textFileLines;
+    vector<string> textContent;
+    int textFileIndex, textContentIndex;
     bool showText;
     string wrapString(string text, int width, ofTrueTypeFont textField);
+    
+    // TTS
+    ofLogAudio log;
+
 };

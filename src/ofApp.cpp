@@ -10,8 +10,23 @@ void ofApp::setup(){
     ofSetBackgroundColor(0);
     ofSetWindowShape(800, 400);
     ofSetWindowPosition(500, 500);
+    // text loading
+    ofBuffer buffer = ofBufferFromFile("txt/love_lyrics.txt");
+    //
+    if(buffer.size()) {
+        for (ofBuffer::Line it = buffer.getLines().begin(), end = buffer.getLines().end(); it != end; ++it) {
+            string line = *it;
+            if(line.empty() == false) {
+                textFileLines.push_back(line);
+            }
+            // print out the line
+            cout << line << endl;
+        }
+    }
     // GUI
     gui.setup();
+    // TTS
+    log.start();
     // ft
     ft.setup("../../../../models/shape_predictor_68_face_landmarks.dat");
     ft.setDrawStyle(ofxDLib::lines);
@@ -126,11 +141,11 @@ void ofApp::update(){
                     showCapture = false;
                     focusTime = 10 + (timeOut02/100);
                     // change the volume of track2
-                    initTimesVolumes[0] = ofGetElapsedTimef(), startVolumes[0] = .2, endVolumes[0] = .1;
-                    initTimesVolumes[1] = ofGetElapsedTimef(), startVolumes[1] = .6, endVolumes[1] = .1;
-                    initTimesVolumes[2] = ofGetElapsedTimef(), startVolumes[2] = .4, endVolumes[2] = .2;
-                    initTimesVolumes[3] = ofGetElapsedTimef(), startVolumes[3] = .4, endVolumes[3] = .2;
-                    initTimesVolumes[4] = ofGetElapsedTimef(), startVolumes[4] = .6, endVolumes[4] = .2;
+                    initTimesVolumes[0] = ofGetElapsedTimef(), startVolumes[0] = .4, endVolumes[0] = .2;
+                    initTimesVolumes[1] = ofGetElapsedTimef(), startVolumes[1] = .6, endVolumes[1] = .2;
+                    initTimesVolumes[2] = ofGetElapsedTimef(), startVolumes[2] = .4, endVolumes[2] = .4;
+                    initTimesVolumes[3] = ofGetElapsedTimef(), startVolumes[3] = .4, endVolumes[3] = .4;
+                    initTimesVolumes[4] = ofGetElapsedTimef(), startVolumes[4] = .6, endVolumes[4] = .4;
                 }
                 if (playVideos) {
                     loadVideos();
@@ -163,7 +178,7 @@ void ofApp::update(){
                     stopVideos();
                     isIdle = false;
                     // Change the volume of track 1
-                    initTimesVolumes[0] = ofGetElapsedTimef(), startVolumes[0] = .1, endVolumes[0] = .2;
+                    initTimesVolumes[0] = ofGetElapsedTimef(), startVolumes[0] = .1, endVolumes[0] = .4;
                     initTimesVolumes[1] = ofGetElapsedTimef(), startVolumes[1] = .1, endVolumes[1] = .6;
                     initTimesVolumes[2] = ofGetElapsedTimef(), startVolumes[2] = .2, endVolumes[2] = .4;
                     initTimesVolumes[3] = ofGetElapsedTimef(), startVolumes[3] = .2, endVolumes[3] = .4;
@@ -173,7 +188,6 @@ void ofApp::update(){
                 // get faces
                 faces = ft.getFaces();
                 vector<ofGrid::PixelsItem> pis;
-//                vector<ofGrid::TextItem> tis;
                 int i = 0;
                 int focusedFaceExists = false;
                 for (auto & face : faces) {
@@ -233,33 +247,10 @@ void ofApp::update(){
                             j++;
                         }
                     }
-                    
-//                    // TEST
-//                    // grid txt
-//                    vector<string> txt = { "I'M WATCHING", "THIS WORDS THIS IS THE", "STRETCH" };
-//                    for (int i=0; i<3; i++) {
-//                        ofGrid::TextItem ti(txt.at(i), i+1);
-//                        tis.push_back(ti);
-//                        ti.clear();
-//                    }
-//                    grid.updateText(tis);
-                    
                 }
-                
-//                // 
-//                // if the focusedFace does not exist and the timer is reseted we start a timer
-//                if (!focusedFaceExists && timer04.getTimeLeftInMillis()==timeOut04) {
-//                    timer04.startTimer();
-//                } else if (focusedFaceExists && timer04.getTimeLeftInMillis()!=timeOut04) {
-//                    //if focused face exist and the timer is not at its initial state we stop and reset the timer
-//                    timer04.stopTimer();
-//                    timer04.reset();
-//                }
-//                // when the timer is finished we unfocus
-//                if (timer04.isTimerFinished() && isFocused) isFocused = false;
-                
                 isFocused = focusedFaceExists;
                 
+                // Grid
                 if (showGrid) {
                     // update
                     grid.updatePixels(pis);
@@ -279,6 +270,42 @@ void ofApp::update(){
                         }
                     }
                 }
+            }
+        }
+        
+        // text
+        if ( showGrid || isIdle ) {
+            if (!log.startSpeaking && timer04.isTimerFinished()) {
+                showText = true;
+                timer04.reset();
+                timer05.reset();
+                timer05.stopTimer();
+                // build speech settings
+                string voice = "Kate";
+                string msg = textFileLines.at(textFileIndex);
+                string misc = "";
+                log.LogAudio(voice, "", "", "130", "1", msg);
+                textFileIndex = (textFileIndex+1)%textFileLines.size();
+                textContentIndex = (textContentIndex+1)%textContent.size();
+                textContent.at(textContentIndex).clear();
+            } else if (textContentIndex == 0){
+                // start long speech timer
+                timer04.setTimer(ofRandom(timeOut04, timeOut04*2));
+                timer04.startTimer();
+                timer05.startTimer();
+            } else {
+                // start speech timer
+                timer04.setTimer(ofRandom(2000));
+                timer04.startTimer();
+            }
+            if (log.speechUpdate()) {
+                textContent.at(textContentIndex).append(log.getCurrentWord() + " ");
+            }
+            if (timer05.isTimerFinished()) {
+                showText = false;
+                textContent.resize(3);
+                timer05.reset();
+                timer05.stopTimer();
             }
         }
     }
@@ -327,10 +354,6 @@ void ofApp::draw(){
         //
         if (isIdle) drawVideos();
     
-//        // TEST
-//        if (!grid.textItems.empty()) {
-//            grid.textItems.at(2).draw(0, 0, 128, 128, ofColor(255, 0, 0));
-//        }
         // Text TEST
         if (showText) {
             ofPushStyle();
@@ -338,16 +361,13 @@ void ofApp::draw(){
                 int padding = 4;
                 int s = 32;
                 int w = s*2;
-                string lorem = "Your eyes of these is the toil";
-                string ipsum = "Your eyes one hand of the world";
-                string dolor = "Your eyes of man would be seen";
-                ofDrawRectangle(s*2, 0, s*2, s*2);
-                ofDrawRectangle(s, s*3, s*2, s*2);
-                ofDrawRectangle(s*4, s*4, s*2, s*2);
+                if (textContentIndex==0) ofDrawRectangle(s*2, 0, s*2, s*2);
+                if (textContentIndex==1) ofDrawRectangle(s, s*3, s*2, s*2);
+                if (textContentIndex==2) ofDrawRectangle(s*4, s*4, s*2, s*2);
                 ofSetColor(255);
-                textDisplay.at(0).drawString(wrapString(lorem, s*2-padding*2, textDisplay.at(0)), s*2+padding, 0+padding+4*2);
-                textDisplay.at(1).drawString(wrapString(ipsum, s*2-padding*2, textDisplay.at(1)), s+padding, s*3+padding+4*2);
-                textDisplay.at(2).drawString(wrapString(dolor, s*2-padding*2, textDisplay.at(2)), s*4+padding, s*4+padding+4*2);
+                if (textContentIndex==0) textDisplay.at(0).drawString(wrapString(textContent.at(0), s*2-padding*2, textDisplay.at(0)), s*2+padding, 0+padding+4*2);
+                if (textContentIndex==1) textDisplay.at(1).drawString(wrapString(textContent.at(1), s*2-padding*2, textDisplay.at(1)), s+padding, s*3+padding+4*2);
+                if (textContentIndex==2) textDisplay.at(2).drawString(wrapString(textContent.at(2), s*2-padding*2, textDisplay.at(2)), s*4+padding, s*4+padding+4*2);
             ofPopStyle();
         }
     
@@ -522,8 +542,9 @@ void ofApp::varSetup(){
     timeOut01 = 5000; // time before iddle
     timeOut02 = 2000; // time before showCapture
     timeOut03 = 1000; // time before grid
-    timeOut04 = 500; // time to keep focus after loosing a face
-    timer01.setup(timeOut01, false), timer02.setup(timeOut02, false), timer03.setup(timeOut03, false), timer04.setup(timeOut04, false);
+    timeOut04 = 20000; // time before starting speaking
+    timeOut05 = 4000; // time to wait when finish speaking
+    timer01.setup(timeOut01, false), timer02.setup(timeOut02, false), timer03.setup(timeOut03, false), timer04.setup(timeOut04, false), timer05.setup(timeOut05, false);
     // ft
     focusTime = 10; // time before focusing + recording
     smoothingRate = 1;
@@ -553,6 +574,8 @@ void ofApp::varSetup(){
         t.load("fonts/pixelmix.ttf", 6*i, false, false, false, 144);
         t.setLineHeight(10*i);
     }
+    textFileIndex = 0, textContentIndex = 0;
+    textContent.resize(3);
 }
 
 
@@ -632,55 +655,6 @@ void ofApp::refreshLive() {
     // set volumes
     for ( int i=0; i<live.getNumTracks() ; i++ ) live.getTrack(i)->setVolume(volumes[i]);
 
-
-//    // Get tracks
-//    ofxAbletonLiveTrack *track01 = live.getTrack(0); // Drums
-//    ofxAbletonLiveTrack *track02 = live.getTrack(1); // Bass
-//    ofxAbletonLiveTrack *track03 = live.getTrack(2); // Organ
-//    ofxAbletonLiveTrack *track04 = live.getTrack(3); // Voices
-//    ofxAbletonLiveTrack *track05 = live.getTrack(4); // Speech
-//    ofxAbletonLiveTrack *track06 = live.getTrack(5); // Jazz Beat
-//    // Volumes
-//    track01->setVolume(volume[0]);
-//    track02->setVolume(vol02);
-//    track03->setVolume(vol03);
-//    track04->setVolume(vol04);
-//    track05->setVolume(vol05);
-//    track06->setVolume(vol06);
-//    // Fx - Melody
-//    ofxAbletonLiveDevice *device = trackMelody->getDevice("Massive");
-//    ofxAbletonLiveParameter *noiseColor = device->getParameter(1);
-//    ofxAbletonLiveParameter *noiseAmp = device->getParameter(2);
-//    ofxAbletonLiveParameter *dryWet = device->getParameter(3);
-//    noiseColor->setValue(melodyRate01);
-//    noiseAmp->setValue(melodyRate02);
-//    dryWet->setValue(melodyRate01);
-//    // Fx - Chords
-//    ofxAbletonLiveDevice *device1 = trackChords->getDevice("Massive");
-//    ofxAbletonLiveParameter *noiseColor1 = device1->getParameter(1);
-//    ofxAbletonLiveParameter *noiseAmp1 = device1->getParameter(2);
-//    ofxAbletonLiveParameter *cutOff = device1->getParameter(3);
-//    ofxAbletonLiveParameter *resonance = device1->getParameter(4);
-//    ofxAbletonLiveParameter *intensity = device1->getParameter(5);
-//    noiseColor1->setValue(melodyRate01);  // reuse of same ofParameter not good
-//    noiseAmp1->setValue(melodyRate02/4);
-//    cutOff->setValue(chordsRate01);
-//    resonance->setValue(chordsRate02);
-//    intensity->setValue(chordsRate02/2);
-//    // Fx - Bass
-//    ofxAbletonLiveDevice *device2 = trackBass->getDevice("Massive");
-//    ofxAbletonLiveParameter *cutOff1 = device2->getParameter(1);
-//    ofxAbletonLiveParameter *resonance1 = device2->getParameter(2);
-//    ofxAbletonLiveParameter *intensity1 = device2->getParameter(4);
-//    cutOff1->setValue(bassRate01);
-//    resonance1->setValue(bassRate01);
-//    intensity1->setValue(bassRate02);
-//    // Fx - Voice
-//    ofxAbletonLiveDevice *device3 = trackVoice->getDevice("Reaktor 6 FX");
-//    ofxAbletonLiveParameter *synth = device3->getParameter(2);
-//    ofxAbletonLiveParameter *fx = device3->getParameter(5);
-//    synth->setValue(voiceRate01);
-//    fx->setValue(voiceRate01);
 }
 
 
@@ -688,6 +662,7 @@ void ofApp::refreshLive() {
 void ofApp::exit(){
     vidRecorder.close();
     blackCam.close();
+    if (live.isLoaded()) live.stop();
 }
 
 //--------------------------------------------------------------
