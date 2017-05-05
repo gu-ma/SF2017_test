@@ -295,7 +295,7 @@ void ofApp::update(){
                 timer05.startTimer();
             } else {
                 // start speech timer
-                timer04.setTimer(ofRandom(2000));
+                timer04.setTimer(ofRandom(3000));
                 timer04.startTimer();
             }
             if (log.speechUpdate()) {
