@@ -34,7 +34,7 @@ void ofApp::setup(){
     // grid
     grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, gridIsSquare);
     // video recording
-    vidRecorder.init(".mov", "mjpeg", "300k");
+    vidRecorder.init(".mov", "mpeg4", "300k");
     // capture
     #ifdef _USE_LIVE_VIDEO
         #ifdef _USE_BLACKMAGIC
