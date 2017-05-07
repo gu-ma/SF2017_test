@@ -34,7 +34,7 @@ void ofApp::setup(){
     // grid
     grid.init(gridWidth, gridHeight, gridRes, gridMinSize, gridMaxSize, gridIsSquare);
     // video recording
-    vidRecorder.init(".mov", "mpeg4", "300k");
+    vidRecorder.init(".mov", "libxvid", "300k");
     // capture
     #ifdef _USE_LIVE_VIDEO
         #ifdef _USE_BLACKMAGIC
@@ -152,6 +152,7 @@ void ofApp::update(){
                     playVideos = false;
                     //
                 }
+                updateVideos();
             }
         } else {
             // *********
@@ -285,20 +286,24 @@ void ofApp::update(){
                 string msg = textFileLines.at(textFileIndex);
                 string misc = "";
                 log.LogAudio(voice, "", "", "130", "1", msg);
+                // increment counters
                 textFileIndex = (textFileIndex+1)%textFileLines.size();
                 textContentIndex = (textContentIndex+1)%textContent.size();
+                // clear current text
                 textContent.at(textContentIndex).clear();
             } else if (textContentIndex == 0){
+                // last sentence
                 // start long speech timer
                 timer04.setTimer(ofRandom(timeOut04, timeOut04*2));
                 timer04.startTimer();
                 timer05.startTimer();
             } else {
                 // start speech timer
-                timer04.setTimer(ofRandom(3000));
+                timer04.setTimer(4000+ofRandom(2000));
                 timer04.startTimer();
             }
             if (log.speechUpdate()) {
+                // it's speaking, update words
                 textContent.at(textContentIndex).append(log.getCurrentWord() + " ");
             }
             if (timer05.isTimerFinished()) {
@@ -411,8 +416,8 @@ ofPixels ofApp::getFacePart(ofPixels sourcePixels, ofPolyline partPolyline, floa
     // check if out of bound
     x = x-w/2;
     y = y-h/2;
-    x = ofClamp(x, 1, sourcePixels.getWidth()*downScale-1);
-    y = ofClamp(y, 1, sourcePixels.getHeight()*downScale-1);
+    x = ofClamp(x, 0, (sourcePixels.getWidth()-w)*downScale);
+    y = ofClamp(y, 0, (sourcePixels.getHeight()-h)*downScale);
     //
     sourcePixels.crop(x*downScale, y*downScale, w*downScale, h*downScale);
     return sourcePixels;
@@ -431,12 +436,10 @@ void ofApp::loadVideos() {
     int j = 0;
     // reverse browsing the dir
     for(int i=(int)dir.size()-1; i>=0 && j<countVideos; i--){
-        if ( dir.getFile(i).getSize() > 100000 ) {
-            videosVector[j].load(dir.getPath(i));
+        if ( dir.getFile(i).getSize()>100000 && videosVector[j].load(dir.getPath(i))) {
             videosVector[j].setLoopState(OF_LOOP_PALINDROME);
             videosVector[j].setSpeed(30);
             videosVector[j].play();
-//            ofLog(OF_LOG_NOTICE, ofToString(dir.getPath(i)));
             j++;
         }
     }
@@ -447,7 +450,6 @@ void ofApp::loadVideos() {
 void ofApp::drawVideos() {
     if (videosVector.size()) {
         for(int i = 0; i < videosVector.size(); i++){
-            videosVector[i].update();
 //            if (videosVector[i].isFrameNew()) {
                 videosVector[i].draw((i%2)*96,(i/2)*96, 96, 96);
 //                ofImage img;
@@ -456,11 +458,18 @@ void ofApp::drawVideos() {
 //                //            img.drawSubsection((i%4)*48, 0, 48, 192, (i%4)*48, 0);
 //                img.drawSubsection((i%2)*96, (i/2)*96, 96, 96, (i%2)*96, (i/2)*96);
 //            }
-
         }
     }
 }
 
+//--------------------------------------------------------------
+void ofApp::updateVideos() {
+    if (videosVector.size()) {
+        for(int i = 0; i < videosVector.size(); i++){
+            videosVector[i].update();
+        }
+    }
+}
 
 //--------------------------------------------------------------
 void ofApp::stopVideos() {
@@ -543,7 +552,7 @@ void ofApp::varSetup(){
     timeOut02 = 2000; // time before showCapture
     timeOut03 = 1000; // time before grid
     timeOut04 = 20000; // time before starting speaking
-    timeOut05 = 4000; // time to wait when finish speaking
+    timeOut05 = 5000; // time to wait when finish speaking
     timer01.setup(timeOut01, false), timer02.setup(timeOut02, false), timer03.setup(timeOut03, false), timer04.setup(timeOut04, false), timer05.setup(timeOut05, false);
     // ft
     focusTime = 10; // time before focusing + recording
